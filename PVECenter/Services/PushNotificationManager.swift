@@ -1,6 +1,6 @@
 import Foundation
 import Observation
-import UserNotifications
+@preconcurrency import UserNotifications
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -129,8 +129,8 @@ public final class PushNotificationManager {
     }
 
     public func refreshAuthorizationStatus() async {
-        let settings = await UNUserNotificationCenter.current().notificationSettings()
-        authorizationStatus = settings.authorizationStatus
+        let status = await UNUserNotificationCenter.current().notificationSettings().authorizationStatus
+        authorizationStatus = status
     }
 
     public func registerDeviceToken(

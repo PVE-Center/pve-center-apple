@@ -1,5 +1,5 @@
 import Foundation
-import SwiftData
+@preconcurrency import SwiftData
 
 /// Persisted server profile storing connection metadata, appearance preference, and config hash.
 /// Sensitive secrets (API tokens, pairing secrets) are stored separately in `KeychainStore` keyed by `id`.
@@ -174,11 +174,13 @@ public final class CachedCustomServiceEntity {
 
 /// Cross-platform `ModelContainer` factory supporting iOS, macOS, and tvOS cleanly.
 public enum PVEModelContainerFactory {
-    public static let schema = Schema([
-        ServerProfileEntity.self,
-        CachedIncidentEntity.self,
-        CachedCustomServiceEntity.self,
-    ])
+    public static var schema: Schema {
+        Schema([
+            ServerProfileEntity.self,
+            CachedIncidentEntity.self,
+            CachedCustomServiceEntity.self,
+        ])
+    }
 
     public static func makeContainer(inMemory: Bool = false) throws -> ModelContainer {
         if inMemory {

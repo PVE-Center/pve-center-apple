@@ -9,15 +9,8 @@ on:
         default: false
         type: boolean
   push:
-    branches: [main]
-    paths:
-      - 'PVECenter/**'
-      - 'PVECenter.xcodeproj/**'
-      - 'Package.swift'
-      - 'scripts/**'
-      - '.github/workflows/ios-appstore.yml'
-  tags:
-    - 'v*'
+    tags:
+      - 'v*'
 
 jobs:
   swift-verify:
