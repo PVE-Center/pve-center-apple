@@ -276,7 +276,7 @@ public struct ContentView: View {
                 ZStack {
                     AmbientBackgroundView()
                     activeTabContent(for: viewModel.selectedTab)
-                        .scrollEdgeEffectStyle(.soft, for: .top)
+                        .adaptiveSoftTopScrollEdgeEffect()
                 }
                 .navigationTitle(viewModel.selectedTab.title)
                 .searchable(
@@ -517,7 +517,7 @@ public struct ContentView: View {
                     ZStack {
                         AmbientBackgroundView()
                         activeTabContent(for: viewModel.selectedTab)
-                            .scrollEdgeEffectStyle(.soft, for: .top)
+                            .adaptiveSoftTopScrollEdgeEffect()
                     }
                     .navigationTitle(viewModel.selectedTab.title)
                     .searchable(text: $viewModel.searchText, prompt: "Filtrer LXC, VM, disques, services…")
@@ -538,7 +538,7 @@ public struct ContentView: View {
                 }
             }
             #if os(iOS)
-            .tabBarMinimizeBehavior(.onScrollDown)
+            .adaptiveTabBarMinimizeOnScroll()
             #endif
             .searchable(text: $viewModel.searchText, prompt: "Filtrer LXC, VM, disques, services…")
         }
@@ -565,7 +565,7 @@ public struct ContentView: View {
             ZStack {
                 AmbientBackgroundView()
                 content()
-                    .scrollEdgeEffectStyle(.soft, for: .top)
+                    .adaptiveSoftTopScrollEdgeEffect()
             }
             .navigationTitle(tab.title)
             .toolbar {

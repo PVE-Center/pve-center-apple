@@ -13,6 +13,72 @@ public extension EnvironmentValues {
     }
 }
 
+// MARK: - Conditional Liquid Glass Helpers (Xcode 26/27 & Xcode 16.4 CI Compatibility)
+
+public extension View {
+    @ViewBuilder
+    func adaptiveGlassEffect<S: Shape>(interactive: Bool = false, in shape: S) -> some View {
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, macOS 26.0, tvOS 26.0, *) {
+            self.glassEffect(interactive ? .regular.interactive() : .regular, in: shape)
+        } else {
+            self.background(.ultraThinMaterial, in: shape)
+        }
+        #else
+        self.background(.ultraThinMaterial, in: shape)
+        #endif
+    }
+
+    @ViewBuilder
+    func adaptiveGlassButtonStyle(prominent: Bool = false) -> some View {
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, macOS 26.0, tvOS 26.0, *) {
+            if prominent {
+                self.buttonStyle(.glassProminent)
+            } else {
+                self.buttonStyle(.glass)
+            }
+        } else if prominent {
+            self.buttonStyle(.borderedProminent)
+        } else {
+            self.buttonStyle(.bordered)
+        }
+        #else
+        if prominent {
+            self.buttonStyle(.borderedProminent)
+        } else {
+            self.buttonStyle(.bordered)
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    func adaptiveSoftTopScrollEdgeEffect() -> some View {
+        #if compiler(>=6.2) && !os(tvOS)
+        if #available(iOS 26.0, macOS 26.0, *) {
+            self.scrollEdgeEffectStyle(.soft, for: .top)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
+
+    @ViewBuilder
+    func adaptiveTabBarMinimizeOnScroll() -> some View {
+        #if compiler(>=6.2) && os(iOS)
+        if #available(iOS 26.0, *) {
+            self.tabBarMinimizeBehavior(.onScrollDown)
+        } else {
+            self
+        }
+        #else
+        self
+        #endif
+    }
+}
+
 // MARK: - Studio Dark & Luminous Palette for Apple Liquid Glass (.glassEffect)
 
 public enum DesignTokens {
@@ -848,7 +914,7 @@ public struct GlassCard<Content: View>: View {
                 .background(.ultraThinMaterial, in: shape)
                 .background(Color.white.opacity(elevated ? 0.46 : 0.30), in: shape)
                 .background(themeAccent.opacity(elevated ? 0.055 : 0.03), in: shape)
-                .glassEffect(interactive ? .regular.interactive() : .regular, in: shape)
+                .adaptiveGlassEffect(interactive: interactive, in: shape)
                 .overlay(
                     shape.strokeBorder(
                         LinearGradient(
@@ -875,7 +941,7 @@ public struct GlassCard<Content: View>: View {
                     DesignTokens.surface(theme: accentTheme, .dark).opacity(elevated ? 0.56 : 0.40),
                     in: shape
                 )
-                .glassEffect(interactive ? .regular.interactive() : .regular, in: shape)
+                .adaptiveGlassEffect(interactive: interactive, in: shape)
                 .overlay(
                     shape.strokeBorder(
                         LinearGradient(
@@ -1101,7 +1167,7 @@ public struct StatusPill: View {
         } else {
             base
                 .background(color.opacity(0.14), in: Capsule())
-                .glassEffect(.regular.interactive(), in: Capsule())
+                .adaptiveGlassEffect(interactive: true, in: Capsule())
                 .overlay(Capsule().strokeBorder(color.opacity(0.32), lineWidth: 0.75))
         }
         #endif
@@ -1403,14 +1469,14 @@ public struct ToastOverlayView: View {
         } else if colorScheme == .light {
             label
                 .background(.ultraThinMaterial, in: Capsule())
-                .glassEffect(.regular, in: Capsule())
+                .adaptiveGlassEffect(interactive: false, in: Capsule())
                 .overlay(Capsule().strokeBorder(DesignTokens.hairBorder(colorScheme), lineWidth: 0.85))
                 .shadow(color: .black.opacity(0.14), radius: 12, y: 5)
                 .padding(.horizontal, 20)
         } else {
             label
                 .background(DesignTokens.surface(theme: accentTheme, .dark).opacity(0.75), in: Capsule())
-                .glassEffect(.regular, in: Capsule())
+                .adaptiveGlassEffect(interactive: false, in: Capsule())
                 .overlay(Capsule().strokeBorder(iconColor.opacity(0.32), lineWidth: 0.9))
                 .shadow(color: .black.opacity(0.45), radius: 14, y: 6)
                 .padding(.horizontal, 20)

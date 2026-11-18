@@ -209,6 +209,18 @@ plutil -lint PVECenter/Resources/Info.plist
 
 ---
 
+## 🗺️ Feuille de route
+
+- [x] Code unifié Swift 6 / SwiftUI sur iOS, iPadOS, macOS (`MenuBarExtra`) et Apple TV (`tvOS`)
+- [x] 6 thèmes Liquid Glass Cider Studio avec contraste dynamique et mode accessibilité complet
+- [x] Découverte Bonjour `_pvecenter._tcp.local.`, onboarding QR (`pvecenter://connect`) et appairage Apple TV par PIN (`P-256 ECDH`)
+- [x] Opérations Live, gestion unifiée des utilisateurs Jellyfin/Jellyseerr et assistant de configuration YAML
+- [ ] Sélecteur de nœuds Proxmox VE multi-cluster (`?node=`) synchronisé avec `pve-panel`
+- [ ] Widgets WidgetKit Écran d'accueil & Écran verrouillé (CPU/RAM & incidents actifs)
+- [ ] Publication automatisée TestFlight / App Store Connect via CI GitHub Actions (dès ajout des secrets Apple)
+
+---
+
 ## Licence
 
 Distribué sous licence [MIT](LICENSE).

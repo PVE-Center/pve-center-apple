@@ -202,7 +202,7 @@ public struct QRScannerView: View {
                                 .padding(.horizontal, 14)
                                 .padding(.vertical, 10)
                         }
-                        .buttonStyle(.glass)
+                        .adaptiveGlassButtonStyle(prominent: false)
                         .tint(.white)
                     }
 
@@ -214,7 +214,7 @@ public struct QRScannerView: View {
                             .padding(.horizontal, 14)
                             .padding(.vertical, 10)
                     }
-                    .buttonStyle(.glassProminent)
+                    .adaptiveGlassButtonStyle(prominent: true)
                     .tint(DesignTokens.accent(accentTheme, colorScheme))
                 }
                 .padding(.bottom, 28)
@@ -331,7 +331,7 @@ public struct QRScannerView: View {
                     Label("Valider le lien", systemImage: "checkmark.circle.fill")
                         .frame(maxWidth: .infinity, minHeight: 52)
                 }
-                .buttonStyle(.glassProminent)
+                .adaptiveGlassButtonStyle(prominent: true)
                 .tint(DesignTokens.accent(accentTheme, colorScheme))
                 .disabled(manualInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
