@@ -23,7 +23,7 @@ body:
     id: versions
     attributes:
       label: OS, Xcode & PVE Center Server Versions
-      description: Example: iOS 27.0, Xcode 27.2, pve-panel v1.0.0
+      description: "Example: iOS 27.0, Xcode 27.2, pve-panel v1.0.0"
       placeholder: "macOS 27.x / iOS 27.x / tvOS 27.x — pve-panel server version"
     validations:
       required: true
