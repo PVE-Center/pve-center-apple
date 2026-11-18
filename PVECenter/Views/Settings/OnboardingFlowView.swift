@@ -572,7 +572,7 @@ public struct OnboardingFlowView: View {
             if viewModel.discoveryService.pveServers.isEmpty {
                 HStack(spacing: 10) {
                     if viewModel.discoveryService.isScanningPVE {
-                        ProgressView().controlSize(.small)
+                        ProgressView().adaptiveSmallControlSize()
                     } else {
                         Image(systemName: "dot.radiowaves.left.and.right")
                             .foregroundStyle(.secondary)
@@ -624,7 +624,7 @@ public struct OnboardingFlowView: View {
                     Label("Tester /api/health & statut", systemImage: "checkmark.shield")
                     Spacer()
                     if isTestingConnection {
-                        ProgressView().controlSize(.small)
+                        ProgressView().adaptiveSmallControlSize()
                     }
                 }
             }
@@ -729,7 +729,7 @@ public struct OnboardingFlowView: View {
                         Label("Générer le jeton administrateur", systemImage: "key.fill")
                         Spacer()
                         if isAuthenticating {
-                            ProgressView().controlSize(.small)
+                            ProgressView().adaptiveSmallControlSize()
                         }
                     }
                 }
@@ -758,7 +758,7 @@ public struct OnboardingFlowView: View {
                         HStack {
                             Label("Vérifier le jeton Bearer", systemImage: "checkmark.shield.fill")
                             Spacer()
-                            if isAuthenticating { ProgressView().controlSize(.small) }
+                            if isAuthenticating { ProgressView().adaptiveSmallControlSize() }
                         }
                     }
                     .disabled(isAuthenticating || bearerTokenInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -774,7 +774,7 @@ public struct OnboardingFlowView: View {
                         HStack {
                             Label("Se connecter (/api/auth/login)", systemImage: "lock.open.fill")
                             Spacer()
-                            if isAuthenticating { ProgressView().controlSize(.small) }
+                            if isAuthenticating { ProgressView().adaptiveSmallControlSize() }
                         }
                     }
                     .disabled(isAuthenticating || adminPinInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
@@ -789,7 +789,7 @@ public struct OnboardingFlowView: View {
                         HStack {
                             Label("Vérifier l'accès Tailscale SSO", systemImage: "person.badge.shield.checkmark.fill")
                             Spacer()
-                            if isAuthenticating { ProgressView().controlSize(.small) }
+                            if isAuthenticating { ProgressView().adaptiveSmallControlSize() }
                         }
                     }
                     .disabled(isAuthenticating)
@@ -848,7 +848,7 @@ public struct OnboardingFlowView: View {
                     Label("Scanner le réseau local (mDNS)", systemImage: "bonjour")
                     Spacer()
                     if viewModel.isLoadingDiscoveryLAN {
-                        ProgressView().controlSize(.small)
+                        ProgressView().adaptiveSmallControlSize()
                     }
                 }
             }
@@ -868,7 +868,7 @@ public struct OnboardingFlowView: View {
                         addServiceFromDiscovery(item)
                     }
                     .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .adaptiveSmallControlSize()
                 }
             }
         } header: {
@@ -904,7 +904,7 @@ public struct OnboardingFlowView: View {
                         addServiceFromTemplate(template)
                     }
                     .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .adaptiveSmallControlSize()
                 }
             }
         } header: {
@@ -965,14 +965,14 @@ public struct OnboardingFlowView: View {
                                 Task { await testStagedService(svc) }
                             } label: {
                                 if testingServiceID == svc.id {
-                                    ProgressView().controlSize(.small)
+                                    ProgressView().adaptiveSmallControlSize()
                                 } else {
                                     Text("Tester la connexion")
                                         .font(.caption.weight(.semibold))
                                 }
                             }
                             .buttonStyle(.bordered)
-                            .controlSize(.small)
+                            .adaptiveSmallControlSize()
                             .disabled(testingServiceID != nil)
 
                             Button(role: .destructive) {

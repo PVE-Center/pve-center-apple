@@ -7,9 +7,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: apple-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  swiftpm-and-lint:
-    name: Lint Scripts & Swift 6 Package Build
+  verify-apple:
+    name: Swift 6 & Xcode Multi-Platform (macOS, iOS, tvOS)
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -28,35 +32,46 @@ jobs:
       - name: Build Swift Package (Swift 6)
         run: swift build
 
-  xcode-multiplatform:
-    name: Build Xcode (${{ matrix.label }})
-    runs-on: macos-15
-    needs: [swiftpm-and-lint]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - label: macOS
-            scheme: PVECenter
-            destination: 'platform=macOS'
-          - label: iOS Simulator
-            scheme: PVECenter-iOS
-            destination: 'generic/platform=iOS Simulator'
-          - label: tvOS Simulator
-            scheme: PVECenter
-            destination: 'generic/platform=tvOS Simulator'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Build ${{ matrix.label }} (unsigned)
+      - name: Build Xcode — macOS (unsigned)
         run: |
           xcodebuild \
             -project PVECenter.xcodeproj \
-            -scheme "${{ matrix.scheme }}" \
+            -scheme PVECenter \
             -configuration Debug \
-            -destination "${{ matrix.destination }}" \
+            -destination 'platform=macOS' \
             -derivedDataPath "$RUNNER_TEMP/dd" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Build Xcode — iOS Simulator (unsigned)
+        run: |
+          xcodebuild \
+            -project PVECenter.xcodeproj \
+            -scheme PVECenter-iOS \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build
+
+      - name: Build Xcode — tvOS Simulator (unsigned)
+        run: |
+          xcodebuild \
+            -project PVECenter.xcodeproj \
+            -scheme PVECenter \
+            -configuration Debug \
+            -destination 'generic/platform=tvOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \

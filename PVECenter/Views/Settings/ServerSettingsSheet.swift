@@ -1007,7 +1007,7 @@ public struct ServerSettingsSheet: View {
                         }
                     }
                     .buttonStyle(.bordered)
-                    .controlSize(.small)
+                    .adaptiveSmallControlSize()
                     .disabled(activeTokenEdit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 
                     if viewModel.hasActiveToken {

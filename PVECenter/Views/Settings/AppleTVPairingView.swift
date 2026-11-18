@@ -378,7 +378,7 @@ public struct AppleTVPairingView: View {
                 Spacer()
                 if viewModel.discoveryService.isScanningPairing {
                     ProgressView()
-                        .controlSize(.small)
+                        .adaptiveSmallControlSize()
                 }
             }
         } footer: {

@@ -164,7 +164,7 @@ public struct YAMLConfigEditorView: View {
             } label: {
                 if isValidating {
                     ProgressView()
-                        .controlSize(.small)
+                        .adaptiveSmallControlSize()
                 } else {
                     Label("Valider le schéma", systemImage: "checkmark.shield")
                 }
@@ -179,7 +179,7 @@ public struct YAMLConfigEditorView: View {
             } label: {
                 if isSaving {
                     ProgressView()
-                        .controlSize(.small)
+                        .adaptiveSmallControlSize()
                 } else {
                     Label("Enregistrer et recharger à chaud", systemImage: "flame.fill")
                         .fontWeight(.semibold)

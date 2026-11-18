@@ -237,7 +237,7 @@ public struct NotificationsSettingsView: View {
                     Spacer()
                     if testingKey == "apns" {
                         ProgressView()
-                            .controlSize(.small)
+                            .adaptiveSmallControlSize()
                     }
                 }
             }
@@ -337,14 +337,14 @@ public struct NotificationsSettingsView: View {
                                 Task { await runTest(channelId: webhook.id, channelType: webhook.type, key: webhook.id) }
                             } label: {
                                 if testingKey == webhook.id {
-                                    ProgressView().controlSize(.small)
+                                    ProgressView().adaptiveSmallControlSize()
                                 } else {
                                     Label("Tester", systemImage: "paperplane")
                                         .font(.caption.weight(.semibold))
                                 }
                             }
                             .buttonStyle(.bordered)
-                            .controlSize(.small)
+                            .adaptiveSmallControlSize()
                             .disabled(testingKey != nil)
 
                             Button {
@@ -354,7 +354,7 @@ public struct NotificationsSettingsView: View {
                                     .font(.caption.weight(.semibold))
                             }
                             .buttonStyle(.bordered)
-                            .controlSize(.small)
+                            .adaptiveSmallControlSize()
 
                             Button(role: .destructive) {
                                 Task { await deleteWebhook(id: webhook.id) }
@@ -390,7 +390,7 @@ public struct NotificationsSettingsView: View {
                         .fontWeight(.semibold)
                     Spacer()
                     if testingKey == "all" {
-                        ProgressView().controlSize(.small)
+                        ProgressView().adaptiveSmallControlSize()
                     }
                 }
             }
