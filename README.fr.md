@@ -136,7 +136,7 @@ Consultez [docs/fr/architecture.md](docs/fr/architecture.md) pour la documentati
 ### 1. Ouvrir dans Xcode
 
 ```bash
-git clone https://github.com/Fairy-Jeux/pve-center-apple.git
+git clone https://github.com/PVE-Center/pve-center-apple.git
 cd pve-center-apple
 open PVECenter.xcodeproj
 ```
@@ -202,10 +202,10 @@ plutil -lint PVECenter/Resources/Info.plist
 
 | Dépôt | Rôle |
 |---|---|
-| [**Fairy-Jeux/pve-panel**](https://github.com/Fairy-Jeux/pve-panel) | Backend FastAPI principal, AlertEngine SQLite, annonce mDNS, Web PWA embarquée, Docker & `install.sh` Proxmox LXC |
-| [**Fairy-Jeux/pve-center-apple**](https://github.com/Fairy-Jeux/pve-center-apple) | Applications natives Swift 6 / SwiftUI pour iPhone, iPad, Mac et Apple TV *(ce dépôt)* |
-| [**Fairy-Jeux/pve-center-clients**](https://github.com/Fairy-Jeux/pve-center-clients) | Clients multiplateformes Desktop (Windows/Linux via Tauri v2) et Android (Capacitor 8) |
-| [**Fairy-Jeux/pve-center-website**](https://github.com/Fairy-Jeux/pve-center-website) | Site vitrine VitePress & portail complet de documentation bilingue |
+| [**PVE-Center/pve-panel**](https://github.com/PVE-Center/pve-panel) | Backend FastAPI principal, AlertEngine SQLite, annonce mDNS, Web PWA embarquée, Docker & `install.sh` Proxmox LXC |
+| [**PVE-Center/pve-center-apple**](https://github.com/PVE-Center/pve-center-apple) | Applications natives Swift 6 / SwiftUI pour iPhone, iPad, Mac et Apple TV *(ce dépôt)* |
+| [**PVE-Center/pve-center-clients**](https://github.com/PVE-Center/pve-center-clients) | Clients multiplateformes Desktop (Windows/Linux via Tauri v2) et Android (Capacitor 8) |
+| [**PVE-Center/pve-center-website**](https://github.com/PVE-Center/pve-center-website) | Site vitrine VitePress & portail complet de documentation bilingue |
 
 ---
 

@@ -2,7 +2,7 @@
 
 # Déploiement Apple (iPhone, iPad, Mac & Apple TV) & App Store — PVE Center
 
-**PVE Center** est une **application Apple 100 % native multi-plateformes en Swift 6 & SwiftUI** (`PVECenter.xcodeproj`) conçue selon les *Apple Human Interface Guidelines* pour **iPhone, iPad, Mac et Apple TV (`tvOS 27.0`)**, pilotant un serveur [**PVE Command Center (`pve-panel`)**](https://github.com/Fairy-Jeux/pve-panel).
+**PVE Center** est une **application Apple 100 % native multi-plateformes en Swift 6 & SwiftUI** (`PVECenter.xcodeproj`) conçue selon les *Apple Human Interface Guidelines* pour **iPhone, iPad, Mac et Apple TV (`tvOS 27.0`)**, pilotant un serveur [**PVE Command Center (`pve-panel`)**](https://github.com/PVE-Center/pve-panel).
 
 ---
 

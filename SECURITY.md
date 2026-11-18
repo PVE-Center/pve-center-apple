@@ -4,7 +4,7 @@
 
 If you discover a security vulnerability in **PVE Center (Apple)** — such as a flaw in Keychain credential handling, CryptoKit Apple TV pairing (`PairingCryptoService`), URL deep-linking (`pvecenter://`), or TLS/token transmission — **please do not open a public GitHub issue**.
 
-Instead, report it privately via **GitHub Security Advisories** on [`Fairy-Jeux/pve-center-apple`](https://github.com/Fairy-Jeux/pve-center-apple/security/advisories/new) with:
+Instead, report it privately via **GitHub Security Advisories** on [`PVE-Center/pve-center-apple`](https://github.com/PVE-Center/pve-center-apple/security/advisories/new) with:
 
 - A clear description of the vulnerability and affected files/platforms
 - Steps to reproduce or proof of concept

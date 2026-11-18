@@ -27,6 +27,6 @@ Thank you for helping improve **PVE Center** on iPhone, iPad, Mac, and Apple TV!
 
 ## Related Repositories
 
-- Backend / API contract changes belong in [Fairy-Jeux/pve-panel](https://github.com/Fairy-Jeux/pve-panel).
-- Desktop (Windows/Linux) and Android client changes belong in [Fairy-Jeux/pve-center-clients](https://github.com/Fairy-Jeux/pve-center-clients).
-- Documentation portal updates belong in [Fairy-Jeux/pve-center-website](https://github.com/Fairy-Jeux/pve-center-website).
+- Backend / API contract changes belong in [PVE-Center/pve-panel](https://github.com/PVE-Center/pve-panel).
+- Desktop (Windows/Linux) and Android client changes belong in [PVE-Center/pve-center-clients](https://github.com/PVE-Center/pve-center-clients).
+- Documentation portal updates belong in [PVE-Center/pve-center-website](https://github.com/PVE-Center/pve-center-website).
