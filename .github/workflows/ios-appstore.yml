@@ -1,0 +1,194 @@
+name: Apple App Store & Multi-Platform Release (iOS / macOS / tvOS)
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_testflight:
+        description: 'Sign and upload .ipa to TestFlight / App Store Connect (requires Apple secrets)'
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches: [main]
+    paths:
+      - 'PVECenter/**'
+      - 'PVECenter.xcodeproj/**'
+      - 'Package.swift'
+      - 'scripts/**'
+      - '.github/workflows/ios-appstore.yml'
+  tags:
+    - 'v*'
+
+jobs:
+  swift-verify:
+    name: Verify & Package Native Swift 6 (macOS + tvOS)
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build & Package macOS App (PVE Center.app)
+        run: |
+          chmod +x scripts/build-macos-app.sh
+          ./scripts/build-macos-app.sh
+          mkdir -p dist-macos
+          ditto -c -k --sequesterRsrc --keepParent "build/PVE Center.app" "dist-macos/PVE-Center-macOS.zip"
+
+      - name: Verify Apple TV Build (tvOS)
+        run: |
+          xcodebuild \
+            -project PVECenter.xcodeproj \
+            -scheme PVECenter \
+            -destination 'generic/platform=tvOS' \
+            -derivedDataPath "$RUNNER_TEMP/pve-tvos-ci" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+          rm -rf "$RUNNER_TEMP/pve-tvos-ci"
+
+      - name: Upload macOS App Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pve-center-macos-app
+          path: dist-macos/PVE-Center-macOS.zip
+          retention-days: 14
+
+  build-ios:
+    name: Archive & Package iOS (PVE Center)
+    runs-on: macos-15
+    needs: [swift-verify]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check App Store signing secrets
+        id: check_secrets
+        shell: bash
+        run: |
+          if [ -n "${{ secrets.APPLE_CERTIFICATE_BASE64 }}" ] && [ -n "${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}" ]; then
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Import Apple Signing Certificate & Provisioning Profile
+        if: steps.check_secrets.outputs.signed == 'true'
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_P12_PASSWORD: ${{ secrets.APPLE_P12_PASSWORD }}
+          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+          KEYCHAIN_PASSWORD: ${{ secrets.APPLE_KEYCHAIN_PASSWORD || 'ci-temp-keychain' }}
+        run: |
+          CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+          PROFILE_PATH="$RUNNER_TEMP/app_profile.mobileprovision"
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+
+          echo -n "$APPLE_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+          echo -n "$APPLE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$PROFILE_PATH"
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -P "$APPLE_P12_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH"
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/ci_profile.mobileprovision"
+
+      - name: Build Signed Xcode Archive (Release)
+        if: steps.check_secrets.outputs.signed == 'true'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.APPLE_PROVISIONING_PROFILE_NAME }}
+        run: |
+          xcodebuild \
+            -project PVECenter.xcodeproj \
+            -scheme PVECenter \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/PVECenter.xcarchive" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROVISIONING_PROFILE_SPECIFIER" \
+            clean archive
+
+      - name: Export .ipa for App Store Connect
+        if: steps.check_secrets.outputs.signed == 'true'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APP_BUNDLE_ID: io.ac.pvepanel.app
+          PROVISIONING_PROFILE_SPECIFIER: ${{ secrets.APPLE_PROVISIONING_PROFILE_NAME }}
+        run: |
+          cat <<EOF > "$RUNNER_TEMP/ExportOptions.plist"
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key>
+            <string>app-store-connect</string>
+            <key>teamID</key>
+            <string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key>
+            <string>manual</string>
+            <key>signingCertificate</key>
+            <string>Apple Distribution</string>
+            <key>provisioningProfiles</key>
+            <dict>
+              <key>${APP_BUNDLE_ID}</key>
+              <string>${PROVISIONING_PROFILE_SPECIFIER}</string>
+            </dict>
+            <key>uploadSymbols</key>
+            <true/>
+          </dict>
+          </plist>
+          EOF
+
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/PVECenter.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export"
+
+      - name: Upload .ipa to TestFlight / App Store Connect
+        if: |
+          steps.check_secrets.outputs.signed == 'true' &&
+          (github.event.inputs.upload_testflight == true || startsWith(github.ref, 'refs/tags/')) &&
+          secrets.APPSTORE_KEY_ID != '' &&
+          secrets.APPSTORE_ISSUER_ID != '' &&
+          secrets.APPSTORE_PRIVATE_KEY != ''
+        env:
+          APPSTORE_KEY_ID: ${{ secrets.APPSTORE_KEY_ID }}
+          APPSTORE_ISSUER_ID: ${{ secrets.APPSTORE_ISSUER_ID }}
+          APPSTORE_PRIVATE_KEY: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+        run: |
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          printf '%s' "$APPSTORE_PRIVATE_KEY" > "$HOME/.appstoreconnect/private_keys/AuthKey_${APPSTORE_KEY_ID}.p8"
+          IPA_FILE=$(find "$RUNNER_TEMP/export" -name "*.ipa" | head -n 1)
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA_FILE" \
+            --apiKey "$APPSTORE_KEY_ID" \
+            --apiIssuer "$APPSTORE_ISSUER_ID"
+
+      - name: Build Unsigned Verification Archive (no Apple secrets yet)
+        if: steps.check_secrets.outputs.signed == 'false'
+        run: |
+          xcodebuild \
+            -project PVECenter.xcodeproj \
+            -scheme PVECenter \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/PVECenter-unsigned.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            clean archive
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pve-center-ios-build
+          path: |
+            ${{ runner.temp }}/export/*.ipa
+            ${{ runner.temp }}/*.xcarchive
+          retention-days: 14

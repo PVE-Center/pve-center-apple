@@ -1,0 +1,63 @@
+name: Bug Report
+description: Report a bug in the PVE Center Apple app (iOS, iPadOS, macOS, or tvOS)
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue in **PVE Center (Apple)**. Please include your device, OS version, and connection mode so we can reproduce it quickly.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Apple Platform
+      options:
+        - iPhone (iOS)
+        - iPad (iPadOS)
+        - Mac (macOS)
+        - Apple TV (tvOS)
+        - Xcode / SwiftPM Build
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: OS, Xcode & PVE Center Server Versions
+      description: Example: iOS 27.0, Xcode 27.2, pve-panel v1.0.0
+      placeholder: "macOS 27.x / iOS 27.x / tvOS 27.x — pve-panel server version"
+    validations:
+      required: true
+  - type: dropdown
+    id: connection_mode
+    attributes:
+      label: Connection Mode
+      options:
+        - Demo Mode (DemoDataStore)
+        - LAN via Bonjour (_pvecenter._tcp)
+        - Direct LAN / Tailscale Serve (HTTPS + Bearer Token)
+        - Apple TV Encrypted PIN Pairing (_pvepair._tcp / Relay)
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug clearly, including expected vs. actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Open PVE Center on ...
+        2. Navigate to ...
+        3. Tap / click ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console Output / Crash Log (Optional)
+      description: Paste relevant Xcode console or Swift build output (redact any API tokens).
+      render: text

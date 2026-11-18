@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: PVE Command Center Server (Backend & Web UI)
+    url: https://github.com/Fairy-Jeux/pve-panel/issues
+    about: Issues related to the FastAPI backend, Proxmox API, Docker, or install.sh
+  - name: Windows, Linux & Android Clients
+    url: https://github.com/Fairy-Jeux/pve-center-clients/issues
+    about: Issues related to the Tauri desktop or Capacitor Android clients
+  - name: Documentation Portal
+    url: https://github.com/Fairy-Jeux/pve-center-website
+    about: Bilingual EN/FR user guides and API reference

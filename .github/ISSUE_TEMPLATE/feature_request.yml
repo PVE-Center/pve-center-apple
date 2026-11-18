@@ -1,0 +1,36 @@
+name: Feature Request
+description: Propose a new native Apple feature, UI enhancement, or Apple platform integration
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea for **PVE Center** on iPhone, iPad, Mac, or Apple TV? Let us know!
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: Target Platforms
+      options:
+        - label: iPhone (iOS)
+        - label: iPad (iPadOS)
+        - label: Mac (macOS / MenuBarExtra)
+        - label: Apple TV (tvOS 10-foot UI)
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Use Case
+      description: What workflow or homelab monitoring task would this improve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Describe the SwiftUI UI, native Apple API (Widgets, Shortcuts, Focus, etc.), or server API integration you envision.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered (Optional)

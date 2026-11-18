@@ -1,0 +1,63 @@
+name: Apple CI (SwiftPM + Xcode Multi-Platform)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  swiftpm-and-lint:
+    name: Lint Scripts & Swift 6 Package Build
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Xcode & Swift versions
+        run: |
+          swift --version
+          xcodebuild -version
+
+      - name: Lint shell scripts and Info.plist
+        run: |
+          bash -n scripts/*.sh
+          plutil -lint PVECenter/Resources/Info.plist
+
+      - name: Build Swift Package (Swift 6)
+        run: swift build
+
+  xcode-multiplatform:
+    name: Build Xcode (${{ matrix.label }})
+    runs-on: macos-15
+    needs: [swiftpm-and-lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: macOS
+            scheme: PVECenter
+            destination: 'platform=macOS'
+          - label: iOS Simulator
+            scheme: PVECenter-iOS
+            destination: 'generic/platform=iOS Simulator'
+          - label: tvOS Simulator
+            scheme: PVECenter
+            destination: 'generic/platform=tvOS Simulator'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build ${{ matrix.label }} (unsigned)
+        run: |
+          xcodebuild \
+            -project PVECenter.xcodeproj \
+            -scheme "${{ matrix.scheme }}" \
+            -configuration Debug \
+            -destination "${{ matrix.destination }}" \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            build

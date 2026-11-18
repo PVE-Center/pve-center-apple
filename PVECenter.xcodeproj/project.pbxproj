@@ -1,0 +1,545 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000010000000000000001 /* PVECenterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000010000000000000001 /* PVECenterApp.swift */; };
+		A10000020000000000000001 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000020000000000000001 /* ContentView.swift */; };
+		A10000030000000000000001 /* DomainModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000030000000000000001 /* DomainModels.swift */; };
+		A10000040000000000000001 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000040000000000000001 /* APIClient.swift */; };
+		A10000050000000000000001 /* DemoDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000050000000000000001 /* DemoDataStore.swift */; };
+		A10000060000000000000001 /* AppViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000060000000000000001 /* AppViewModel.swift */; };
+		A10000070000000000000001 /* ByteFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000070000000000000001 /* ByteFormatters.swift */; };
+		A10000080000000000000001 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000080000000000000001 /* GlassCard.swift */; };
+		A10000090000000000000001 /* AlertsBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000090000000000000001 /* AlertsBannerView.swift */; };
+		A100000A0000000000000001 /* OverviewTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000A0000000000000001 /* OverviewTabView.swift */; };
+		A100000B0000000000000001 /* ProxmoxTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000B0000000000000001 /* ProxmoxTabView.swift */; };
+		A100000C0000000000000001 /* StorageTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000C0000000000000001 /* StorageTabView.swift */; };
+		A100000D0000000000000001 /* ServicesTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000D0000000000000001 /* ServicesTabView.swift */; };
+		A100000E0000000000000001 /* OperationsTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000E0000000000000001 /* OperationsTabView.swift */; };
+		A100000F0000000000000001 /* UsersTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100000F0000000000000001 /* UsersTabView.swift */; };
+		A10000100000000000000001 /* CreateUserSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000100000000000000001 /* CreateUserSheet.swift */; };
+		A10000110000000000000001 /* ManageUserSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000110000000000000001 /* ManageUserSheet.swift */; };
+		A10000120000000000000001 /* ServerSettingsSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000120000000000000001 /* ServerSettingsSheet.swift */; };
+		A10000130000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10000130000000000000001 /* Assets.xcassets */; };
+		A10000140000000000000001 /* ServerSetupWizardSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000150000000000000001 /* ServerSetupWizardSheet.swift */; };
+		A10000150000000000000001 /* SwiftDataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000160000000000000001 /* SwiftDataModels.swift */; };
+		A10000160000000000000001 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000170000000000000001 /* KeychainStore.swift */; };
+		A10000170000000000000001 /* BonjourDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000180000000000000001 /* BonjourDiscoveryService.swift */; };
+		A10000180000000000000001 /* PairingCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000190000000000000001 /* PairingCryptoService.swift */; };
+		A10000190000000000000001 /* RealtimeEventsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001A0000000000000001 /* RealtimeEventsClient.swift */; };
+		A100001A0000000000000001 /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001B0000000000000001 /* PushNotificationManager.swift */; };
+		A100001B0000000000000001 /* CustomServiceEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001C0000000000000001 /* CustomServiceEditorSheet.swift */; };
+		A100001C0000000000000001 /* YAMLConfigEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001D0000000000000001 /* YAMLConfigEditorView.swift */; };
+		A100001D0000000000000001 /* NotificationsSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001E0000000000000001 /* NotificationsSettingsView.swift */; };
+		A100001E0000000000000001 /* OnboardingFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B100001F0000000000000001 /* OnboardingFlowView.swift */; };
+		A100001F0000000000000001 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000200000000000000001 /* QRScannerView.swift */; };
+		A10000200000000000000001 /* AppleTVPairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000210000000000000001 /* AppleTVPairingView.swift */; };
+		A10000210000000000000001 /* ServiceIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000220000000000000001 /* ServiceIconView.swift */; };
+		A10000220000000000000001 /* CategoryServiceEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000230000000000000001 /* CategoryServiceEditorSheet.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B00000010000000000000001 /* PVE Center.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "PVE Center.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B10000010000000000000001 /* PVECenterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PVECenterApp.swift; sourceTree = "<group>"; };
+		B10000020000000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B10000030000000000000001 /* DomainModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainModels.swift; sourceTree = "<group>"; };
+		B10000040000000000000001 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		B10000050000000000000001 /* DemoDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoDataStore.swift; sourceTree = "<group>"; };
+		B10000060000000000000001 /* AppViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppViewModel.swift; sourceTree = "<group>"; };
+		B10000070000000000000001 /* ByteFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteFormatters.swift; sourceTree = "<group>"; };
+		B10000080000000000000001 /* GlassCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCard.swift; sourceTree = "<group>"; };
+		B10000090000000000000001 /* AlertsBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsBannerView.swift; sourceTree = "<group>"; };
+		B100000A0000000000000001 /* OverviewTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewTabView.swift; sourceTree = "<group>"; };
+		B100000B0000000000000001 /* ProxmoxTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProxmoxTabView.swift; sourceTree = "<group>"; };
+		B100000C0000000000000001 /* StorageTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageTabView.swift; sourceTree = "<group>"; };
+		B100000D0000000000000001 /* ServicesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesTabView.swift; sourceTree = "<group>"; };
+		B100000E0000000000000001 /* OperationsTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationsTabView.swift; sourceTree = "<group>"; };
+		B100000F0000000000000001 /* UsersTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsersTabView.swift; sourceTree = "<group>"; };
+		B10000100000000000000001 /* CreateUserSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserSheet.swift; sourceTree = "<group>"; };
+		B10000110000000000000001 /* ManageUserSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageUserSheet.swift; sourceTree = "<group>"; };
+		B10000120000000000000001 /* ServerSettingsSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerSettingsSheet.swift; sourceTree = "<group>"; };
+		B10000130000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B10000140000000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B10000150000000000000001 /* ServerSetupWizardSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerSetupWizardSheet.swift; sourceTree = "<group>"; };
+		B10000160000000000000001 /* SwiftDataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftDataModels.swift; sourceTree = "<group>"; };
+		B10000170000000000000001 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		B10000180000000000000001 /* BonjourDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourDiscoveryService.swift; sourceTree = "<group>"; };
+		B10000190000000000000001 /* PairingCryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PairingCryptoService.swift; sourceTree = "<group>"; };
+		B100001A0000000000000001 /* RealtimeEventsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealtimeEventsClient.swift; sourceTree = "<group>"; };
+		B100001B0000000000000001 /* PushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
+		B100001C0000000000000001 /* CustomServiceEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomServiceEditorSheet.swift; sourceTree = "<group>"; };
+		B100001D0000000000000001 /* YAMLConfigEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YAMLConfigEditorView.swift; sourceTree = "<group>"; };
+		B100001E0000000000000001 /* NotificationsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsSettingsView.swift; sourceTree = "<group>"; };
+		B100001F0000000000000001 /* OnboardingFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowView.swift; sourceTree = "<group>"; };
+		B10000200000000000000001 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
+		B10000210000000000000001 /* AppleTVPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleTVPairingView.swift; sourceTree = "<group>"; };
+		B10000220000000000000001 /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
+		B10000230000000000000001 /* CategoryServiceEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryServiceEditorSheet.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F10000010000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		C00000010000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				C10000010000000000000001 /* PVECenter */,
+				C20000010000000000000001 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		C10000010000000000000001 /* PVECenter */ = {
+			isa = PBXGroup;
+			children = (
+				C10000020000000000000001 /* App */,
+				C10000030000000000000001 /* Models */,
+				C10000040000000000000001 /* Services */,
+				C10000050000000000000001 /* ViewModels */,
+				C10000060000000000000001 /* Views */,
+				C100000D0000000000000001 /* Resources */,
+			);
+			path = PVECenter;
+			sourceTree = "<group>";
+		};
+		C10000020000000000000001 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				B10000010000000000000001 /* PVECenterApp.swift */,
+				B10000020000000000000001 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		C10000030000000000000001 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B10000030000000000000001 /* DomainModels.swift */,
+				B10000160000000000000001 /* SwiftDataModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		C10000040000000000000001 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				B10000040000000000000001 /* APIClient.swift */,
+				B10000050000000000000001 /* DemoDataStore.swift */,
+				B10000170000000000000001 /* KeychainStore.swift */,
+				B10000180000000000000001 /* BonjourDiscoveryService.swift */,
+				B10000190000000000000001 /* PairingCryptoService.swift */,
+				B100001A0000000000000001 /* RealtimeEventsClient.swift */,
+				B100001B0000000000000001 /* PushNotificationManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C10000050000000000000001 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				B10000060000000000000001 /* AppViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C10000060000000000000001 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				C10000070000000000000001 /* Components */,
+				C10000080000000000000001 /* Overview */,
+				C10000090000000000000001 /* Proxmox */,
+				C100000A0000000000000001 /* Storage */,
+				C100000B0000000000000001 /* ServicesHub */,
+				C100000C0000000000000001 /* Operations */,
+				C100000E0000000000000001 /* Users */,
+				C100000F0000000000000001 /* Settings */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		C10000070000000000000001 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				B10000070000000000000001 /* ByteFormatters.swift */,
+				B10000080000000000000001 /* GlassCard.swift */,
+				B10000090000000000000001 /* AlertsBannerView.swift */,
+				B10000220000000000000001 /* ServiceIconView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		C10000080000000000000001 /* Overview */ = {
+			isa = PBXGroup;
+			children = (
+				B100000A0000000000000001 /* OverviewTabView.swift */,
+			);
+			path = Overview;
+			sourceTree = "<group>";
+		};
+		C10000090000000000000001 /* Proxmox */ = {
+			isa = PBXGroup;
+			children = (
+				B100000B0000000000000001 /* ProxmoxTabView.swift */,
+			);
+			path = Proxmox;
+			sourceTree = "<group>";
+		};
+		C100000A0000000000000001 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				B100000C0000000000000001 /* StorageTabView.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		C100000B0000000000000001 /* ServicesHub */ = {
+			isa = PBXGroup;
+			children = (
+				B100000D0000000000000001 /* ServicesTabView.swift */,
+				B100001C0000000000000001 /* CustomServiceEditorSheet.swift */,
+				B10000230000000000000001 /* CategoryServiceEditorSheet.swift */,
+			);
+			path = ServicesHub;
+			sourceTree = "<group>";
+		};
+		C100000C0000000000000001 /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				B100000E0000000000000001 /* OperationsTabView.swift */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
+		C100000D0000000000000001 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B10000130000000000000001 /* Assets.xcassets */,
+				B10000140000000000000001 /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		C100000E0000000000000001 /* Users */ = {
+			isa = PBXGroup;
+			children = (
+				B100000F0000000000000001 /* UsersTabView.swift */,
+				B10000100000000000000001 /* CreateUserSheet.swift */,
+				B10000110000000000000001 /* ManageUserSheet.swift */,
+			);
+			path = Users;
+			sourceTree = "<group>";
+		};
+		C100000F0000000000000001 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				B10000120000000000000001 /* ServerSettingsSheet.swift */,
+				B10000150000000000000001 /* ServerSetupWizardSheet.swift */,
+				B100001D0000000000000001 /* YAMLConfigEditorView.swift */,
+				B100001E0000000000000001 /* NotificationsSettingsView.swift */,
+				B100001F0000000000000001 /* OnboardingFlowView.swift */,
+				B10000200000000000000001 /* QRScannerView.swift */,
+				B10000210000000000000001 /* AppleTVPairingView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		C20000010000000000000001 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B00000010000000000000001 /* PVE Center.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		D10000010000000000000001 /* PVECenter */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E20000010000000000000001 /* Build configuration list for PBXNativeTarget "PVECenter" */;
+			buildPhases = (
+				D20000010000000000000001 /* Sources */,
+				F10000010000000000000001 /* Frameworks */,
+				D30000010000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PVECenter;
+			productName = PVECenter;
+			productReference = B00000010000000000000001 /* PVE Center.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		000000010000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 2720;
+			};
+			buildConfigurationList = E10000010000000000000001 /* Build configuration list for PBXProject "PVECenter" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = fr;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				fr,
+				en,
+				Base,
+			);
+			mainGroup = C00000010000000000000001;
+			productRefGroup = C20000010000000000000001 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D10000010000000000000001 /* PVECenter */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D30000010000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000130000000000000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D20000010000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A10000010000000000000001 /* PVECenterApp.swift in Sources */,
+				A10000020000000000000001 /* ContentView.swift in Sources */,
+				A10000030000000000000001 /* DomainModels.swift in Sources */,
+				A10000040000000000000001 /* APIClient.swift in Sources */,
+				A10000050000000000000001 /* DemoDataStore.swift in Sources */,
+				A10000060000000000000001 /* AppViewModel.swift in Sources */,
+				A10000070000000000000001 /* ByteFormatters.swift in Sources */,
+				A10000080000000000000001 /* GlassCard.swift in Sources */,
+				A10000090000000000000001 /* AlertsBannerView.swift in Sources */,
+				A100000A0000000000000001 /* OverviewTabView.swift in Sources */,
+				A100000B0000000000000001 /* ProxmoxTabView.swift in Sources */,
+				A100000C0000000000000001 /* StorageTabView.swift in Sources */,
+				A100000D0000000000000001 /* ServicesTabView.swift in Sources */,
+				A100000E0000000000000001 /* OperationsTabView.swift in Sources */,
+				A100000F0000000000000001 /* UsersTabView.swift in Sources */,
+				A10000100000000000000001 /* CreateUserSheet.swift in Sources */,
+				A10000110000000000000001 /* ManageUserSheet.swift in Sources */,
+				A10000120000000000000001 /* ServerSettingsSheet.swift in Sources */,
+				A10000140000000000000001 /* ServerSetupWizardSheet.swift in Sources */,
+				A10000150000000000000001 /* SwiftDataModels.swift in Sources */,
+				A10000160000000000000001 /* KeychainStore.swift in Sources */,
+				A10000170000000000000001 /* BonjourDiscoveryService.swift in Sources */,
+				A10000180000000000000001 /* PairingCryptoService.swift in Sources */,
+				A10000190000000000000001 /* RealtimeEventsClient.swift in Sources */,
+				A100001A0000000000000001 /* PushNotificationManager.swift in Sources */,
+				A100001B0000000000000001 /* CustomServiceEditorSheet.swift in Sources */,
+				A100001C0000000000000001 /* YAMLConfigEditorView.swift in Sources */,
+				A100001D0000000000000001 /* NotificationsSettingsView.swift in Sources */,
+				A100001E0000000000000001 /* OnboardingFlowView.swift in Sources */,
+				A100001F0000000000000001 /* QRScannerView.swift in Sources */,
+				A10000200000000000000001 /* AppleTVPairingView.swift in Sources */,
+				A10000210000000000000001 /* ServiceIconView.swift in Sources */,
+				A10000220000000000000001 /* CategoryServiceEditorSheet.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		E10000020000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+				TVOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		E10000030000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 6.0;
+				TVOS_DEPLOYMENT_TARGET = 27.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E20000020000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=appletv*]" = "tvOS App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LFY4VUWTU4;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PVECenter/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.ac.pvepanel.app;
+				PRODUCT_NAME = "PVE Center";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx appletvos appletvsimulator";
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		E20000030000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"ASSETCATALOG_COMPILER_APPICON_NAME[sdk=appletv*]" = "tvOS App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LFY4VUWTU4;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = PVECenter/Resources/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 27.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.ac.pvepanel.app;
+				PRODUCT_NAME = "PVE Center";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx appletvos appletvsimulator";
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E10000010000000000000001 /* Build configuration list for PBXProject "PVECenter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E10000020000000000000001 /* Debug */,
+				E10000030000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E20000010000000000000001 /* Build configuration list for PBXNativeTarget "PVECenter" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E20000020000000000000001 /* Debug */,
+				E20000030000000000000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 000000010000000000000001 /* Project object */;
+}

@@ -1,0 +1,27 @@
+# Swift Package Manager & Xcode Build Outputs
+.build/
+build/
+dist-macos/
+DerivedData/
+.swiftpm/
+
+# Xcode User State & Archives
+xcuserdata/
+*.xcuserstate
+*.moved-aside
+*.hmap
+*.ipa
+*.xcarchive
+*.app
+
+# Signing Secrets & Provisioning Profiles
+*.p8
+*.p12
+*.cer
+*.mobileprovision
+
+# macOS & Editor Artifacts
+.DS_Store
+*.log
+*.swp
+*~
