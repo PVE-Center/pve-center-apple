@@ -137,11 +137,17 @@ public actor APIClient {
         return try await send(path: "/api/me", baseURL: baseURL)
     }
 
-    public func fetchPveOverview(baseURL: String, demoMode: Bool) async throws -> PveOverview {
+    public func fetchPveOverview(
+        baseURL: String,
+        demoMode: Bool,
+        node: String? = nil
+    ) async throws -> PveOverview {
+        let targetNode = normalizedNodeParam(node)
         if demoMode {
-            return await demoStore.pveOverview()
+            return await demoStore.pveOverview(node: targetNode)
         }
-        return try await send(path: "/api/pve/overview", baseURL: baseURL)
+        let path = pathWithNodeQuery("/api/pve/overview", node: targetNode)
+        return try await send(path: path, baseURL: baseURL)
     }
 
     public func fetchServices(baseURL: String, demoMode: Bool) async throws -> ServicesResponse {
@@ -661,14 +667,17 @@ public actor APIClient {
         demoMode: Bool,
         type: PveResourceType,
         vmid: Int,
-        action: PveAction
+        action: PveAction,
+        node: String? = nil
     ) async throws {
+        let targetNode = normalizedNodeParam(node)
         if demoMode {
-            try await demoStore.performPveAction(type: type, vmid: vmid, action: action)
+            try await demoStore.performPveAction(type: type, vmid: vmid, action: action, node: targetNode)
             return
         }
+        let path = pathWithNodeQuery("/api/pve/\(type.rawValue)/\(vmid)/\(action.rawValue)", node: targetNode)
         let _: ActionOKResponse = try await send(
-            path: "/api/pve/\(type.rawValue)/\(vmid)/\(action.rawValue)",
+            path: path,
             method: "POST",
             baseURL: baseURL
         )
@@ -853,6 +862,21 @@ public actor APIClient {
     }
 
     // MARK: - Core HTTP Transport
+
+    private func normalizedNodeParam(_ node: String?) -> String? {
+        guard let trimmed = node?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else {
+            return nil
+        }
+        return trimmed
+    }
+
+    private func pathWithNodeQuery(_ basePath: String, node: String?) -> String {
+        guard let node else { return basePath }
+        var components = URLComponents()
+        components.path = basePath
+        components.queryItems = [URLQueryItem(name: "node", value: node)]
+        return components.string ?? basePath
+    }
 
     private func escapePath(_ component: String) -> String {
         component.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? component

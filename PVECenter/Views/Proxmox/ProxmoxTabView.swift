@@ -66,6 +66,18 @@ public struct ProxmoxTabView: View {
     public var body: some View {
         ScrollView {
             LazyVStack(spacing: 14) {
+                if let clusterNodes = viewModel.pveOverview?.clusterNodes, !clusterNodes.isEmpty {
+                    clusterSelectorBar(clusterNodes)
+                }
+
+                if viewModel.pveOverview?.failoverActive == true {
+                    failoverBannerCard(
+                        activeNodeName: viewModel.pveOverview?.selectedNode
+                            ?? viewModel.pveOverview?.node.name
+                            ?? "nœud de secours"
+                    )
+                }
+
                 if let node = viewModel.pveOverview?.node {
                     nodeOverviewCard(node)
                 }
@@ -138,6 +150,130 @@ public struct ProxmoxTabView: View {
                 Text(cmd.action.warningMessage)
             }
         }
+    }
+
+    private func clusterSelectorBar(_ clusterNodes: [ClusterNode]) -> some View {
+        let teal = DesignTokens.accent(accentTheme, colorScheme)
+        let nominal = DesignTokens.nominal(colorScheme)
+        let critical = DesignTokens.critical(colorScheme)
+        let activeSelection = viewModel.selectedClusterNode ?? viewModel.pveOverview?.selectedNode
+        let isClusterSelected = activeSelection == "*" || activeSelection?.lowercased() == "all"
+        let onlineCount = clusterNodes.filter(\.online).count
+
+        #if os(tvOS)
+        let dotSize: CGFloat = 10
+        let cardPadding: CGFloat = 18
+        #else
+        let dotSize: CGFloat = 8
+        let cardPadding: CGFloat = 12
+        #endif
+
+        return GlassCard(padding: cardPadding, cornerRadius: 18) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 8) {
+                    Label("Nœuds du cluster", systemImage: "square.stack.3d.up.fill")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(DesignTokens.secondaryText(colorScheme))
+                    Spacer(minLength: 8)
+                    Text("\(onlineCount)/\(clusterNodes.count) en ligne")
+                        .font(.system(.caption2, design: .monospaced, weight: .semibold))
+                        .foregroundStyle(DesignTokens.secondaryText(colorScheme))
+                }
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        Button {
+                            Task { await viewModel.selectClusterNode("*") }
+                        } label: {
+                            Label("Cluster (*)", systemImage: "square.stack.3d.up.fill")
+                                #if os(tvOS)
+                                .font(.callout.weight(.semibold))
+                                #else
+                                .font(.caption.weight(.semibold))
+                                #endif
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                        }
+                        .adaptiveSmallControlSize()
+                        .adaptivePillButtonStyle(
+                            tint: isClusterSelected ? teal : nil,
+                            prominent: isClusterSelected
+                        )
+
+                        ForEach(clusterNodes) { cNode in
+                            let isNodeSelected = !isClusterSelected && activeSelection == cNode.name
+                            let statusDotColor = cNode.online ? nominal : critical
+                            let pillTint: Color? = isNodeSelected ? teal : (cNode.online ? nil : critical)
+
+                            Button {
+                                Task { await viewModel.selectClusterNode(cNode.name) }
+                            } label: {
+                                HStack(spacing: 6) {
+                                    if isNodeSelected {
+                                        Image(systemName: cNode.online ? "circle.fill" : "exclamationmark.triangle.fill")
+                                            .font(.system(size: dotSize, weight: .bold))
+                                    } else {
+                                        Image(systemName: cNode.online ? "circle.fill" : "exclamationmark.triangle.fill")
+                                            .font(.system(size: dotSize, weight: .bold))
+                                            .foregroundStyle(statusDotColor)
+                                    }
+                                    Text(cNode.name)
+                                        #if os(tvOS)
+                                        .font(.callout.weight(.semibold))
+                                        #else
+                                        .font(.caption.weight(.semibold))
+                                        #endif
+                                    Text(cNode.online ? String(format: "%.0f%%", cNode.cpuPct) : "HS")
+                                        #if os(tvOS)
+                                        .font(.system(.caption, design: .monospaced, weight: .bold))
+                                        #else
+                                        .font(.system(.caption2, design: .monospaced, weight: .bold))
+                                        #endif
+                                        .opacity(0.88)
+                                }
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                            }
+                            .adaptiveSmallControlSize()
+                            .adaptivePillButtonStyle(
+                                tint: pillTint,
+                                prominent: isNodeSelected
+                            )
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+                #if os(tvOS)
+                .focusSection()
+                #endif
+            }
+        }
+    }
+
+    private func failoverBannerCard(activeNodeName: String) -> some View {
+        let caution = DesignTokens.caution(colorScheme)
+        return GlassCard(padding: 14, cornerRadius: 16) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "arrow.triangle.branch")
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(caution)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Bascule automatique active (Failover)")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(DesignTokens.primaryText(colorScheme))
+                    Text("Le nœud principal ne répond plus. Supervision redirigée vers \(activeNodeName).")
+                        .font(.caption)
+                        .foregroundStyle(DesignTokens.secondaryText(colorScheme))
+                }
+                Spacer(minLength: 8)
+                StatusPill("Failover", color: caution, systemImage: "exclamationmark.triangle.fill")
+                    .fixedSize()
+            }
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(caution.opacity(0.45), lineWidth: 1.2)
+        )
     }
 
     private func nodeOverviewCard(_ node: NodeSummary) -> some View {
@@ -242,6 +378,23 @@ public struct ProxmoxTabView: View {
                                 .minimumScaleFactor(0.8)
                         }
                         HStack(spacing: 6) {
+                            if let nodeName = res.node, !nodeName.isEmpty {
+                                HStack(spacing: 3) {
+                                    Image(systemName: "server.rack")
+                                    Text(nodeName)
+                                }
+                                #if os(tvOS)
+                                .font(.system(.caption2, design: .monospaced, weight: .semibold))
+                                #else
+                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                #endif
+                                .foregroundStyle(teal)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(teal.opacity(0.14), in: Capsule())
+                                .lineLimit(1)
+                                .fixedSize(horizontal: true, vertical: false)
+                            }
                             Text(res.type.badgeLabel)
                                 #if os(tvOS)
                                 .font(.system(.caption, design: .monospaced, weight: .bold))
@@ -259,7 +412,7 @@ public struct ProxmoxTabView: View {
                                 #endif
                                 .foregroundStyle(DesignTokens.secondaryText(colorScheme))
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.85)
+                                .minimumScaleFactor(0.8)
                         }
                     }
 

@@ -123,9 +123,82 @@ public enum PveResourceType: String, Codable, Sendable, Equatable {
     }
 }
 
+public struct ClusterNode: Identifiable, Codable, Hashable, Sendable {
+    public var id: String { name }
+    public let name: String
+    public let status: String
+    public let online: Bool
+    public let cpuPct: Double
+    public let cpus: Int
+    public let memUsedBytes: Int64
+    public let memTotalBytes: Int64
+    public let memPct: Double
+    public let uptimeSeconds: Int
+    public let uptimeHuman: String
+
+    public init(
+        name: String,
+        status: String = "online",
+        online: Bool = true,
+        cpuPct: Double = 0,
+        cpus: Int = 0,
+        memUsedBytes: Int64 = 0,
+        memTotalBytes: Int64 = 0,
+        memPct: Double = 0,
+        uptimeSeconds: Int = 0,
+        uptimeHuman: String = "—"
+    ) {
+        self.name = name
+        self.status = status
+        self.online = online
+        self.cpuPct = cpuPct
+        self.cpus = cpus
+        self.memUsedBytes = memUsedBytes
+        self.memTotalBytes = memTotalBytes
+        self.memPct = memPct
+        self.uptimeSeconds = uptimeSeconds
+        self.uptimeHuman = uptimeHuman
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case name
+        case status
+        case online
+        case cpuPct
+        case cpus
+        case memUsedBytes
+        case memTotalBytes
+        case memPct
+        case uptimeSeconds
+        case uptimeHuman
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        let decodedStatus = try container.decodeIfPresent(String.self, forKey: .status) ?? "unknown"
+        self.status = decodedStatus
+        self.online = try container.decodeIfPresent(Bool.self, forKey: .online)
+            ?? (decodedStatus.lowercased() == "online")
+        self.cpuPct = try container.decodeIfPresent(Double.self, forKey: .cpuPct) ?? 0
+        self.cpus = try container.decodeIfPresent(Int.self, forKey: .cpus) ?? 0
+        self.memUsedBytes = try container.decodeIfPresent(Int64.self, forKey: .memUsedBytes) ?? 0
+        self.memTotalBytes = try container.decodeIfPresent(Int64.self, forKey: .memTotalBytes) ?? 0
+        self.memPct = try container.decodeIfPresent(Double.self, forKey: .memPct) ?? 0
+        self.uptimeSeconds = try container.decodeIfPresent(Int.self, forKey: .uptimeSeconds) ?? 0
+        self.uptimeHuman = try container.decodeIfPresent(String.self, forKey: .uptimeHuman) ?? "—"
+    }
+}
+
 public struct PveResource: Codable, Sendable, Equatable, Identifiable {
-    public var id: String { "\(type.rawValue)-\(vmid)" }
+    public var id: String {
+        if let node, !node.isEmpty {
+            return "\(node)-\(type.rawValue)-\(vmid)"
+        }
+        return "\(type.rawValue)-\(vmid)"
+    }
     public let vmid: Int
+    public let node: String?
     public var name: String
     public let type: PveResourceType
     public var status: String
@@ -143,6 +216,83 @@ public struct PveResource: Codable, Sendable, Equatable, Identifiable {
 
     public var isRunning: Bool {
         status.lowercased() == "running"
+    }
+
+    public init(
+        vmid: Int,
+        node: String? = nil,
+        name: String,
+        type: PveResourceType,
+        status: String,
+        cpuPct: Double,
+        cpus: Int,
+        memUsedBytes: Int64,
+        memTotalBytes: Int64,
+        memPct: Double,
+        diskUsedBytes: Int64,
+        diskTotalBytes: Int64,
+        uptimeSeconds: Int,
+        uptimeHuman: String,
+        tags: [String] = [],
+        isSelf: Bool = false
+    ) {
+        self.vmid = vmid
+        self.node = node
+        self.name = name
+        self.type = type
+        self.status = status
+        self.cpuPct = cpuPct
+        self.cpus = cpus
+        self.memUsedBytes = memUsedBytes
+        self.memTotalBytes = memTotalBytes
+        self.memPct = memPct
+        self.diskUsedBytes = diskUsedBytes
+        self.diskTotalBytes = diskTotalBytes
+        self.uptimeSeconds = uptimeSeconds
+        self.uptimeHuman = uptimeHuman
+        self.tags = tags
+        self.isSelf = isSelf
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case vmid
+        case node
+        case name
+        case type
+        case status
+        case cpuPct
+        case cpus
+        case memUsedBytes
+        case memTotalBytes
+        case memPct
+        case diskUsedBytes
+        case diskTotalBytes
+        case uptimeSeconds
+        case uptimeHuman
+        case tags
+        case isSelf
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.vmid = try container.decode(Int.self, forKey: .vmid)
+        let rawNode = try container.decodeIfPresent(String.self, forKey: .node)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        self.node = (rawNode?.isEmpty == false) ? rawNode : nil
+        self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? "guest-\(self.vmid)"
+        self.type = try container.decode(PveResourceType.self, forKey: .type)
+        self.status = try container.decodeIfPresent(String.self, forKey: .status) ?? "unknown"
+        self.cpuPct = try container.decodeIfPresent(Double.self, forKey: .cpuPct) ?? 0
+        self.cpus = try container.decodeIfPresent(Int.self, forKey: .cpus) ?? 1
+        self.memUsedBytes = try container.decodeIfPresent(Int64.self, forKey: .memUsedBytes) ?? 0
+        self.memTotalBytes = try container.decodeIfPresent(Int64.self, forKey: .memTotalBytes) ?? 0
+        self.memPct = try container.decodeIfPresent(Double.self, forKey: .memPct) ?? 0
+        self.diskUsedBytes = try container.decodeIfPresent(Int64.self, forKey: .diskUsedBytes) ?? 0
+        self.diskTotalBytes = try container.decodeIfPresent(Int64.self, forKey: .diskTotalBytes) ?? 0
+        self.uptimeSeconds = try container.decodeIfPresent(Int.self, forKey: .uptimeSeconds) ?? 0
+        self.uptimeHuman = try container.decodeIfPresent(String.self, forKey: .uptimeHuman) ?? "—"
+        self.tags = try container.decodeIfPresent([String].self, forKey: .tags) ?? []
+        self.isSelf = try container.decodeIfPresent(Bool.self, forKey: .isSelf) ?? false
     }
 }
 
@@ -255,6 +405,54 @@ public struct PveOverview: Codable, Sendable, Equatable {
     public let counts: PveCounts
     public let resources: [PveResource]
     public let externalStorage: ExternalStorageOverview?
+    public let selectedNode: String?
+    public let failoverActive: Bool?
+    public let clusterNodes: [ClusterNode]?
+
+    public init(
+        online: Bool,
+        node: NodeSummary,
+        counts: PveCounts,
+        resources: [PveResource],
+        externalStorage: ExternalStorageOverview? = nil,
+        selectedNode: String? = nil,
+        failoverActive: Bool? = nil,
+        clusterNodes: [ClusterNode]? = nil
+    ) {
+        self.online = online
+        self.node = node
+        self.counts = counts
+        self.resources = resources
+        self.externalStorage = externalStorage
+        self.selectedNode = selectedNode
+        self.failoverActive = failoverActive
+        self.clusterNodes = clusterNodes
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case online
+        case node
+        case counts
+        case resources
+        case externalStorage
+        case selectedNode
+        case failoverActive
+        case clusterNodes
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.online = try container.decodeIfPresent(Bool.self, forKey: .online) ?? false
+        self.node = try container.decode(NodeSummary.self, forKey: .node)
+        self.counts = try container.decode(PveCounts.self, forKey: .counts)
+        self.resources = try container.decodeIfPresent([PveResource].self, forKey: .resources) ?? []
+        self.externalStorage = try container.decodeIfPresent(ExternalStorageOverview.self, forKey: .externalStorage)
+        let rawSelected = try container.decodeIfPresent(String.self, forKey: .selectedNode)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        self.selectedNode = (rawSelected?.isEmpty == false) ? rawSelected : nil
+        self.failoverActive = try container.decodeIfPresent(Bool.self, forKey: .failoverActive)
+        self.clusterNodes = try container.decodeIfPresent([ClusterNode].self, forKey: .clusterNodes)
+    }
 }
 
 // MARK: - Services & Widgets

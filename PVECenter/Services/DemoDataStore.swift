@@ -30,6 +30,7 @@ public actor DemoDataStore {
         self.resources = [
             PveResource(
                 vmid: 101,
+                node: "pve-node-01",
                 name: "ct-reverse-proxy",
                 type: .lxc,
                 status: "running",
@@ -47,6 +48,7 @@ public actor DemoDataStore {
             ),
             PveResource(
                 vmid: 102,
+                node: "pve-node-01",
                 name: "ct-media-server",
                 type: .lxc,
                 status: "running",
@@ -64,6 +66,7 @@ public actor DemoDataStore {
             ),
             PveResource(
                 vmid: 103,
+                node: "pve-node-01",
                 name: "vm-docker-host",
                 type: .qemu,
                 status: "running",
@@ -81,6 +84,7 @@ public actor DemoDataStore {
             ),
             PveResource(
                 vmid: 104,
+                node: "pve-node-01",
                 name: "ct-backup-node",
                 type: .lxc,
                 status: "stopped",
@@ -98,6 +102,7 @@ public actor DemoDataStore {
             ),
             PveResource(
                 vmid: 116,
+                node: "pve-node-01",
                 name: "pve-panel",
                 type: .lxc,
                 status: "running",
@@ -112,6 +117,60 @@ public actor DemoDataStore {
                 uptimeHuman: "7j 0h",
                 tags: ["panel", "tailscale"],
                 isSelf: true
+            ),
+            PveResource(
+                vmid: 201,
+                node: "pve-node-02",
+                name: "ct-monitoring-stack",
+                type: .lxc,
+                status: "running",
+                cpuPct: 12.4,
+                cpus: 4,
+                memUsedBytes: 3 * 1024 * 1024 * 1024,
+                memTotalBytes: 8 * 1024 * 1024 * 1024,
+                memPct: 37.5,
+                diskUsedBytes: 18 * 1024 * 1024 * 1024,
+                diskTotalBytes: 48 * 1024 * 1024 * 1024,
+                uptimeSeconds: 1_123_200,
+                uptimeHuman: "13j 0h",
+                tags: ["grafana", "prometheus"],
+                isSelf: false
+            ),
+            PveResource(
+                vmid: 202,
+                node: "pve-node-02",
+                name: "vm-immich-ai",
+                type: .qemu,
+                status: "running",
+                cpuPct: 28.5,
+                cpus: 8,
+                memUsedBytes: 14 * 1024 * 1024 * 1024,
+                memTotalBytes: 32 * 1024 * 1024 * 1024,
+                memPct: 43.8,
+                diskUsedBytes: 92 * 1024 * 1024 * 1024,
+                diskTotalBytes: 200 * 1024 * 1024 * 1024,
+                uptimeSeconds: 784_800,
+                uptimeHuman: "9j 2h",
+                tags: ["photos", "gpu"],
+                isSelf: false
+            ),
+            PveResource(
+                vmid: 203,
+                node: "pve-node-02",
+                name: "ct-pbs-replicate",
+                type: .lxc,
+                status: "stopped",
+                cpuPct: 0,
+                cpus: 2,
+                memUsedBytes: 0,
+                memTotalBytes: 4 * 1024 * 1024 * 1024,
+                memPct: 0,
+                diskUsedBytes: 12 * 1024 * 1024 * 1024,
+                diskTotalBytes: 60 * 1024 * 1024 * 1024,
+                uptimeSeconds: 0,
+                uptimeHuman: "Arrêté",
+                tags: ["backup"],
+                isSelf: false
             ),
         ]
 
@@ -487,135 +546,302 @@ public actor DemoDataStore {
         )
     }
 
-    public func pveOverview() -> PveOverview {
-        let running = resources.filter(\.isRunning).count
-        let lxcCount = resources.filter { $0.type == .lxc }.count
-        let qemuCount = resources.filter { $0.type == .qemu }.count
+    public func pveOverview(node: String? = nil) -> PveOverview {
+        let reqNode = node?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let node1 = demoNodeSummary(for: "pve-node-01")
+        let node2 = demoNodeSummary(for: "pve-node-02")
+        let clusterNodes = demoClusterNodes(node1: node1, node2: node2)
+        let extStorage = demoExternalStorage()
+
+        if reqNode == "*" || reqNode.lowercased() == "all" {
+            let sortedResources = resources.sorted {
+                if $0.vmid != $1.vmid { return $0.vmid < $1.vmid }
+                return ($0.node ?? "") < ($1.node ?? "")
+            }
+            let running = sortedResources.filter(\.isRunning).count
+            let lxcCount = sortedResources.filter { $0.type == .lxc }.count
+            let qemuCount = sortedResources.filter { $0.type == .qemu }.count
+
+            let memUsed = node1.memUsedBytes + node2.memUsedBytes
+            let memTotal = max(1, node1.memTotalBytes + node2.memTotalBytes)
+            let memPct = ((Double(memUsed) / Double(memTotal)) * 1000).rounded() / 10
+            let avgCpu = (((node1.cpuPct + node2.cpuPct) / 2.0) * 10).rounded() / 10
+
+            let combinedStorages = node1.storages.map { st in
+                StorageInfo(
+                    name: "\(node1.name):\(st.name)",
+                    type: st.type,
+                    active: st.active,
+                    usedBytes: st.usedBytes,
+                    totalBytes: st.totalBytes,
+                    usedPct: st.usedPct
+                )
+            } + node2.storages.map { st in
+                StorageInfo(
+                    name: "\(node2.name):\(st.name)",
+                    type: st.type,
+                    active: st.active,
+                    usedBytes: st.usedBytes,
+                    totalBytes: st.totalBytes,
+                    usedPct: st.usedPct
+                )
+            }
+
+            let clusterSummary = NodeSummary(
+                name: "Cluster (2 nœuds)",
+                cpuPct: avgCpu,
+                cpuModel: node1.cpuModel,
+                cpuThreads: node1.cpuThreads + node2.cpuThreads,
+                loadavg: node1.loadavg,
+                memUsedBytes: memUsed,
+                memTotalBytes: memTotal,
+                memPct: memPct,
+                swapUsedBytes: node1.swapUsedBytes + node2.swapUsedBytes,
+                swapTotalBytes: node1.swapTotalBytes + node2.swapTotalBytes,
+                rootfsUsedBytes: node1.rootfsUsedBytes + node2.rootfsUsedBytes,
+                rootfsTotalBytes: node1.rootfsTotalBytes + node2.rootfsTotalBytes,
+                uptimeSeconds: max(node1.uptimeSeconds, node2.uptimeSeconds),
+                uptimeHuman: node1.uptimeHuman,
+                pveVersion: node1.pveVersion,
+                storages: combinedStorages
+            )
+
+            return PveOverview(
+                online: true,
+                node: clusterSummary,
+                counts: PveCounts(
+                    total: sortedResources.count,
+                    running: running,
+                    stopped: sortedResources.count - running,
+                    lxc: lxcCount,
+                    qemu: qemuCount
+                ),
+                resources: sortedResources,
+                externalStorage: extStorage,
+                selectedNode: reqNode,
+                failoverActive: false,
+                clusterNodes: clusterNodes
+            )
+        }
+
+        let targetNodeName = reqNode == "pve-node-02" ? "pve-node-02" : "pve-node-01"
+        let nodeSummary = targetNodeName == "pve-node-02" ? node2 : node1
+        let nodeResources = resources.filter { ($0.node ?? "pve-node-01") == targetNodeName }
+        let running = nodeResources.filter(\.isRunning).count
+        let lxcCount = nodeResources.filter { $0.type == .lxc }.count
+        let qemuCount = nodeResources.filter { $0.type == .qemu }.count
 
         return PveOverview(
             online: true,
-            node: NodeSummary(
-                name: "pve-node-01",
-                cpuPct: 23.8,
-                cpuModel: "AMD Ryzen / EPYC Virtualization Host",
+            node: nodeSummary,
+            counts: PveCounts(
+                total: nodeResources.count,
+                running: running,
+                stopped: nodeResources.count - running,
+                lxc: lxcCount,
+                qemu: qemuCount
+            ),
+            resources: nodeResources,
+            externalStorage: extStorage,
+            selectedNode: targetNodeName,
+            failoverActive: false,
+            clusterNodes: clusterNodes
+        )
+    }
+
+    private func demoNodeSummary(for nodeName: String) -> NodeSummary {
+        if nodeName == "pve-node-02" {
+            return NodeSummary(
+                name: "pve-node-02",
+                cpuPct: 16.4,
+                cpuModel: "Intel Xeon Silver 4314",
                 cpuThreads: 16,
-                loadavg: ["1.18", "1.05", "0.94"],
-                memUsedBytes: 28 * gb,
-                memTotalBytes: 64 * gb,
-                memPct: 43.8,
-                swapUsedBytes: 512 * 1024 * 1024,
+                loadavg: ["0.72", "0.68", "0.61"],
+                memUsedBytes: 17 * gb,
+                memTotalBytes: 48 * gb,
+                memPct: 35.4,
+                swapUsedBytes: 256 * 1024 * 1024,
                 swapTotalBytes: 8 * gb,
-                rootfsUsedBytes: 42 * gb,
-                rootfsTotalBytes: 120 * gb,
-                uptimeSeconds: 1_842_310,
-                uptimeHuman: "21j 7h 45m",
+                rootfsUsedBytes: 28 * gb,
+                rootfsTotalBytes: 100 * gb,
+                uptimeSeconds: 1_123_200,
+                uptimeHuman: "13j 0h 15m",
                 pveVersion: "8.3.2",
                 storages: [
                     StorageInfo(
-                        name: "local-lvm",
-                        type: "lvmthin",
+                        name: "local-zfs",
+                        type: "zfspool",
                         active: true,
-                        usedBytes: 412 * gb,
+                        usedBytes: 280 * gb,
                         totalBytes: 1000 * gb,
-                        usedPct: 41.2
+                        usedPct: 28.0
                     ),
                     StorageInfo(
                         name: "local",
                         type: "dir",
                         active: true,
-                        usedBytes: 88 * gb,
-                        totalBytes: 240 * gb,
-                        usedPct: 36.7
+                        usedBytes: 52 * gb,
+                        totalBytes: 120 * gb,
+                        usedPct: 43.3
                     ),
                 ]
+            )
+        }
+
+        return NodeSummary(
+            name: "pve-node-01",
+            cpuPct: 23.8,
+            cpuModel: "AMD Ryzen / EPYC Virtualization Host",
+            cpuThreads: 16,
+            loadavg: ["1.18", "1.05", "0.94"],
+            memUsedBytes: 28 * gb,
+            memTotalBytes: 64 * gb,
+            memPct: 43.8,
+            swapUsedBytes: 512 * 1024 * 1024,
+            swapTotalBytes: 8 * gb,
+            rootfsUsedBytes: 42 * gb,
+            rootfsTotalBytes: 120 * gb,
+            uptimeSeconds: 1_842_310,
+            uptimeHuman: "21j 7h 45m",
+            pveVersion: "8.3.2",
+            storages: [
+                StorageInfo(
+                    name: "local-lvm",
+                    type: "lvmthin",
+                    active: true,
+                    usedBytes: 412 * gb,
+                    totalBytes: 1000 * gb,
+                    usedPct: 41.2
+                ),
+                StorageInfo(
+                    name: "local",
+                    type: "dir",
+                    active: true,
+                    usedBytes: 88 * gb,
+                    totalBytes: 240 * gb,
+                    usedPct: 36.7
+                ),
+            ]
+        )
+    }
+
+    private func demoClusterNodes(node1: NodeSummary, node2: NodeSummary) -> [ClusterNode] {
+        [
+            ClusterNode(
+                name: node1.name,
+                status: "online",
+                online: true,
+                cpuPct: node1.cpuPct,
+                cpus: node1.cpuThreads,
+                memUsedBytes: node1.memUsedBytes,
+                memTotalBytes: node1.memTotalBytes,
+                memPct: node1.memPct,
+                uptimeSeconds: node1.uptimeSeconds,
+                uptimeHuman: node1.uptimeHuman
             ),
-            counts: PveCounts(
-                total: resources.count,
-                running: running,
-                stopped: resources.count - running,
-                lxc: lxcCount,
-                qemu: qemuCount
+            ClusterNode(
+                name: node2.name,
+                status: "online",
+                online: true,
+                cpuPct: node2.cpuPct,
+                cpus: node2.cpuThreads,
+                memUsedBytes: node2.memUsedBytes,
+                memTotalBytes: node2.memTotalBytes,
+                memPct: node2.memPct,
+                uptimeSeconds: node2.uptimeSeconds,
+                uptimeHuman: node2.uptimeHuman
             ),
-            resources: resources,
-            externalStorage: ExternalStorageOverview(
-                pool: MergerfsPoolInfo(
-                    name: "Pool MergerFS (32 To)",
-                    mount: "/mnt/storage",
-                    fstype: "fuse.mergerfs",
-                    policy: "mfs (most free space)",
-                    drivesCount: 3,
-                    available: true,
-                    totalBytes: 32 * tb,
-                    usedBytes: 20 * tb,
-                    availBytes: 12 * tb,
+        ]
+    }
+
+    private func demoExternalStorage() -> ExternalStorageOverview {
+        ExternalStorageOverview(
+            pool: MergerfsPoolInfo(
+                name: "Pool MergerFS (32 To)",
+                mount: "/mnt/storage",
+                fstype: "fuse.mergerfs",
+                policy: "mfs (most free space)",
+                drivesCount: 3,
+                available: true,
+                totalBytes: 32 * tb,
+                usedBytes: 20 * tb,
+                availBytes: 12 * tb,
+                usedPct: 62.5
+            ),
+            drives: [
+                PhysicalDriveInfo(
+                    mount: "/mnt/disk1",
+                    label: "Disque 1 • 16 To",
+                    wwn: "wwn-0x5000demo00000001",
+                    devpath: "/dev/sda",
+                    model: "Seagate IronWolf Pro 16TB",
+                    vendor: "ATA",
+                    serial: "DEMO-16TB-01",
+                    type: "HDD",
+                    rpm: "7200 rpm",
+                    health: "PASSED",
+                    sizeBytes: 16 * tb,
+                    totalBytes: 16 * tb,
+                    usedBytes: 10 * tb,
+                    availBytes: 6 * tb,
                     usedPct: 62.5
                 ),
-                drives: [
-                    PhysicalDriveInfo(
-                        mount: "/mnt/disk1",
-                        label: "Disque 1 • 16 To",
-                        wwn: "wwn-0x5000demo00000001",
-                        devpath: "/dev/sda",
-                        model: "Seagate IronWolf Pro 16TB",
-                        vendor: "ATA",
-                        serial: "DEMO-16TB-01",
-                        type: "HDD",
-                        rpm: "7200 rpm",
-                        health: "PASSED",
-                        sizeBytes: 16 * tb,
-                        totalBytes: 16 * tb,
-                        usedBytes: 10 * tb,
-                        availBytes: 6 * tb,
-                        usedPct: 62.5
-                    ),
-                    PhysicalDriveInfo(
-                        mount: "/mnt/disk2",
-                        label: "Disque 2 • 16 To",
-                        wwn: "wwn-0x5000demo00000002",
-                        devpath: "/dev/sdb",
-                        model: "Seagate IronWolf Pro 16TB",
-                        vendor: "ATA",
-                        serial: "DEMO-16TB-02",
-                        type: "HDD",
-                        rpm: "7200 rpm",
-                        health: "PASSED",
-                        sizeBytes: 16 * tb,
-                        totalBytes: 16 * tb,
-                        usedBytes: 9 * tb,
-                        availBytes: 7 * tb,
-                        usedPct: 56.3
-                    ),
-                    PhysicalDriveInfo(
-                        mount: "/mnt/disk3",
-                        label: "Cache NVMe • 2 To",
-                        wwn: "wwn-0x5000demo00000003",
-                        devpath: "/dev/nvme0n1",
-                        model: "Samsung 990 PRO 2TB",
-                        vendor: "NVMe",
-                        serial: "DEMO-NVME-01",
-                        type: "SSD",
-                        rpm: "NVMe",
-                        health: "PASSED",
-                        sizeBytes: 2 * tb,
-                        totalBytes: 2 * tb,
-                        usedBytes: 840 * gb,
-                        availBytes: 1160 * gb,
-                        usedPct: 42.0
-                    ),
-                ],
-                systemSsd: SystemSsdInfo(
-                    devpath: "/dev/nvme1n1",
-                    model: "Enterprise Boot NVMe 512GB",
-                    serial: "DEMO-SYS-01",
+                PhysicalDriveInfo(
+                    mount: "/mnt/disk2",
+                    label: "Disque 2 • 16 To",
+                    wwn: "wwn-0x5000demo00000002",
+                    devpath: "/dev/sdb",
+                    model: "Seagate IronWolf Pro 16TB",
+                    vendor: "ATA",
+                    serial: "DEMO-16TB-02",
+                    type: "HDD",
+                    rpm: "7200 rpm",
                     health: "PASSED",
-                    sizeBytes: 512 * gb
-                )
+                    sizeBytes: 16 * tb,
+                    totalBytes: 16 * tb,
+                    usedBytes: 9 * tb,
+                    availBytes: 7 * tb,
+                    usedPct: 56.3
+                ),
+                PhysicalDriveInfo(
+                    mount: "/mnt/disk3",
+                    label: "Cache NVMe • 2 To",
+                    wwn: "wwn-0x5000demo00000003",
+                    devpath: "/dev/nvme0n1",
+                    model: "Samsung 990 PRO 2TB",
+                    vendor: "NVMe",
+                    serial: "DEMO-NVME-01",
+                    type: "SSD",
+                    rpm: "NVMe",
+                    health: "PASSED",
+                    sizeBytes: 2 * tb,
+                    totalBytes: 2 * tb,
+                    usedBytes: 840 * gb,
+                    availBytes: 1160 * gb,
+                    usedPct: 42.0
+                ),
+            ],
+            systemSsd: SystemSsdInfo(
+                devpath: "/dev/nvme1n1",
+                model: "Enterprise Boot NVMe 512GB",
+                serial: "DEMO-SYS-01",
+                health: "PASSED",
+                sizeBytes: 512 * gb
             )
         )
     }
 
-    public func performPveAction(type: PveResourceType, vmid: Int, action: PveAction) throws {
-        guard let idx = resources.firstIndex(where: { $0.vmid == vmid && $0.type == type }) else {
+    public func performPveAction(type: PveResourceType, vmid: Int, action: PveAction, node: String? = nil) throws {
+        let matchedIdx: Int? = {
+            if let node, !node.isEmpty {
+                return resources.firstIndex(where: {
+                    $0.vmid == vmid && $0.type == type && ($0.node ?? "pve-node-01") == node
+                })
+            }
+            return nil
+        }() ?? resources.firstIndex(where: { $0.vmid == vmid && $0.type == type })
+
+        guard let idx = matchedIdx else {
             throw APIError.serverError(statusCode: 404, detail: "Ressource introuvable en mode démo.")
         }
         if resources[idx].isSelf && action != .start {
@@ -641,10 +867,11 @@ public actor DemoDataStore {
             resources[idx].uptimeHuman = "1m"
         }
 
+        let targetNode = resources[idx].node ?? "pve-node-01"
         let now = Int(Date().timeIntervalSince1970)
         pveTasks.insert(
             PveTaskItem(
-                upid: "UPID:pve-node-01:demo-\(action.rawValue)-\(vmid)-\(now)",
+                upid: "UPID:\(targetNode):demo-\(action.rawValue)-\(vmid)-\(now)",
                 type: "\(type == .lxc ? "vz" : "qm")\(action.rawValue)",
                 vmid: "\(vmid)",
                 user: "demo@pve",

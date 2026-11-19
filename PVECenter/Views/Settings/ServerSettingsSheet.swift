@@ -788,6 +788,15 @@ public struct ServerSettingsSheet: View {
                 }
                 .padding(.vertical, 4)
             }
+
+            Section("Aperçu Widget Télémétrique") {
+                GlanceableNodeWidgetView(
+                    snapshot: viewModel.latestTelemetrySnapshot ?? .placeholder,
+                    compact: true
+                )
+                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0))
+                .listRowBackground(Color.clear)
+            }
         }
     }
 

@@ -120,7 +120,7 @@ flowchart LR
 | **Entrée & Navigation** | `PVECenter/App/PVECenterApp.swift`, `PVECenter/App/ContentView.swift` |
 | **État & Persistance** | `PVECenter/ViewModels/AppViewModel.swift`, `PVECenter/Models/DomainModels.swift`, `PVECenter/Models/SwiftDataModels.swift` |
 | **Réseau & Sécurité** | `PVECenter/Services/APIClient.swift`, `KeychainStore.swift`, `RealtimeEventsClient.swift`, `BonjourDiscoveryService.swift`, `PairingCryptoService.swift`, `PushNotificationManager.swift`, `DemoDataStore.swift` |
-| **Design & Vues métier** | `Views/Components/GlassCard.swift`, `ServiceIconView.swift`, `Views/Overview/`, `Views/Proxmox/`, `Views/Storage/`, `Views/ServicesHub/`, `Views/Operations/`, `Views/Users/`, `Views/Settings/` |
+| **Design & Vues métier** | `Views/Components/GlassCard.swift`, `ServiceIconView.swift`, `WidgetSnapshotViews.swift`, `Views/Overview/`, `Views/Proxmox/`, `Views/Storage/`, `Views/ServicesHub/`, `Views/Operations/`, `Views/Users/`, `Views/Settings/` |
 
 Consultez [docs/fr/architecture.md](docs/fr/architecture.md) pour la documentation technique détaillée.
 
@@ -215,9 +215,9 @@ plutil -lint PVECenter/Resources/Info.plist
 - [x] 6 thèmes Liquid Glass Cider Studio avec contraste dynamique et mode accessibilité complet
 - [x] Découverte Bonjour `_pvecenter._tcp.local.`, onboarding QR (`pvecenter://connect`) et appairage Apple TV par PIN (`P-256 ECDH`)
 - [x] Opérations Live, gestion unifiée des utilisateurs Jellyfin/Jellyseerr et assistant de configuration YAML
-- [ ] Sélecteur de nœuds Proxmox VE multi-cluster (`?node=`) synchronisé avec `pve-panel`
-- [ ] Widgets WidgetKit Écran d'accueil & Écran verrouillé (CPU/RAM & incidents actifs)
-- [ ] Publication automatisée TestFlight / App Store Connect via CI GitHub Actions (dès ajout des secrets Apple)
+- [x] Sélecteur de nœuds Proxmox VE multi-cluster (`?node=`, bannière failover & badges par hôte) synchronisé avec `pve-panel`
+- [x] Stockage et vues de snapshots télémétriques prêts pour WidgetKit (`TelemetryWidgetSnapshot`, `TelemetrySnapshotStore`, `GlanceableNodeWidgetView` : jauges CPU/RAM & incidents actifs)
+- [ ] Publication automatisée TestFlight / App Store Connect via CI GitHub Actions (nécessite les secrets Apple Developer fournis par l'utilisateur)
 
 ---
 

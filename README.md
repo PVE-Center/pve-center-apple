@@ -120,7 +120,7 @@ flowchart LR
 | **Entry & Navigation** | `PVECenter/App/PVECenterApp.swift`, `PVECenter/App/ContentView.swift` |
 | **State & Persistence** | `PVECenter/ViewModels/AppViewModel.swift`, `PVECenter/Models/DomainModels.swift`, `PVECenter/Models/SwiftDataModels.swift` |
 | **Networking & Security** | `PVECenter/Services/APIClient.swift`, `KeychainStore.swift`, `RealtimeEventsClient.swift`, `BonjourDiscoveryService.swift`, `PairingCryptoService.swift`, `PushNotificationManager.swift`, `DemoDataStore.swift` |
-| **Design & Feature Views** | `Views/Components/GlassCard.swift`, `ServiceIconView.swift`, `Views/Overview/`, `Views/Proxmox/`, `Views/Storage/`, `Views/ServicesHub/`, `Views/Operations/`, `Views/Users/`, `Views/Settings/` |
+| **Design & Feature Views** | `Views/Components/GlassCard.swift`, `ServiceIconView.swift`, `WidgetSnapshotViews.swift`, `Views/Overview/`, `Views/Proxmox/`, `Views/Storage/`, `Views/ServicesHub/`, `Views/Operations/`, `Views/Users/`, `Views/Settings/` |
 
 See [docs/en/architecture.md](docs/en/architecture.md) for the complete technical deep-dive.
 
@@ -215,9 +215,9 @@ plutil -lint PVECenter/Resources/Info.plist
 - [x] 6 Cider Studio Liquid Glass themes with dynamic canvas contrast & full accessibility fallbacks
 - [x] Zero-config `_pvecenter._tcp.local.` Bonjour discovery, QR onboarding (`pvecenter://connect`), and `P-256 ECDH` Apple TV PIN pairing
 - [x] Interactive Operations, unified Jellyfin/Jellyseerr user management, and declarative YAML config setup wizard
-- [ ] Multi-node Proxmox VE cluster node switcher (`?node=` selector) synced with `pve-panel`
-- [ ] Home Screen & Lock Screen WidgetKit extensions (CPU/RAM gauges & active incidents)
-- [ ] Automated TestFlight / App Store Connect CI distribution once Apple Developer secrets are configured
+- [x] Multi-node Proxmox VE cluster node switcher (`?node=` selector, failover banner & guest node badges) synced with `pve-panel`
+- [x] Glanceable WidgetKit-ready telemetry snapshot store & views (`TelemetryWidgetSnapshot`, `TelemetrySnapshotStore`, `GlanceableNodeWidgetView` for CPU/RAM gauges & active incidents)
+- [ ] Automated TestFlight / App Store Connect CI distribution (requires user-provided Apple Developer signing & API secrets)
 
 ---
 

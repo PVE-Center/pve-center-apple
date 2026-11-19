@@ -19,6 +19,7 @@ public final class AppViewModel {
     public let apiClient: APIClient
     public let modelContainer: ModelContainer
     public let keychainStore: KeychainStore
+    public let telemetrySnapshotStore: TelemetrySnapshotStore
     public let discoveryService: BonjourDiscoveryService
     public let pairingService: PairingCryptoService
     public let realtimeClient: RealtimeEventsClient
@@ -55,6 +56,8 @@ public final class AppViewModel {
     // MARK: - Domain State
     public var user: AuthUser?
     public var pveOverview: PveOverview?
+    public var selectedClusterNode: String?
+    public var latestTelemetrySnapshot: TelemetryWidgetSnapshot?
     public var categories: [ServiceCategory] = []
     public var widgets: WidgetsMap?
     public var usersOverview: UsersOverview?
@@ -72,11 +75,13 @@ public final class AppViewModel {
     public init(
         apiClient: APIClient = APIClient(),
         modelContainer: ModelContainer? = nil,
-        keychainStore: KeychainStore = .shared
+        keychainStore: KeychainStore = .shared,
+        telemetrySnapshotStore: TelemetrySnapshotStore = .shared
     ) {
         self.apiClient = apiClient
         self.modelContainer = modelContainer ?? PVEModelContainerFactory.makeSharedContainer()
         self.keychainStore = keychainStore
+        self.telemetrySnapshotStore = telemetrySnapshotStore
         self.discoveryService = BonjourDiscoveryService()
         self.pairingService = PairingCryptoService()
         self.realtimeClient = RealtimeEventsClient()
@@ -105,6 +110,8 @@ public final class AppViewModel {
         } else {
             self.needsOnboarding = false
         }
+
+        self.latestTelemetrySnapshot = telemetrySnapshotStore.load()
 
         if let activeID = activeServerProfile?.id {
             hydrateCachesFromSwiftData(for: activeID)
@@ -600,7 +607,11 @@ public final class AppViewModel {
             self.user = me
             self.connectionError = nil
 
-            async let pveReq = apiClient.fetchPveOverview(baseURL: serverBaseURL, demoMode: isDemoMode)
+            async let pveReq = apiClient.fetchPveOverview(
+                baseURL: serverBaseURL,
+                demoMode: isDemoMode,
+                node: selectedClusterNode
+            )
             async let svcReq = apiClient.fetchServices(baseURL: serverBaseURL, demoMode: isDemoMode)
             async let widReq = apiClient.fetchWidgets(baseURL: serverBaseURL, demoMode: isDemoMode)
             async let opsReq = apiClient.fetchOpsOverview(baseURL: serverBaseURL, demoMode: isDemoMode)
@@ -640,6 +651,7 @@ public final class AppViewModel {
             }
 
             self.lastUpdated = Date()
+            persistTelemetrySnapshot()
             if let activeID = activeServerProfile?.id {
                 updateSwiftDataProfile(id: activeID) { entity in
                     entity.lastConnectedAt = Date()
@@ -651,6 +663,31 @@ public final class AppViewModel {
             if !silent {
                 showToast(error.localizedDescription, isError: true)
             }
+        }
+    }
+
+    public func selectClusterNode(_ node: String?) async {
+        let trimmed = node?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalized = (trimmed?.isEmpty == false) ? trimmed : nil
+        guard selectedClusterNode != normalized else { return }
+        selectedClusterNode = normalized
+        hapticImpactTrigger += 1
+        await refreshPveOverviewOnly()
+    }
+
+    public func refreshPveOverviewOnly() async {
+        guard isDemoMode || !serverBaseURL.isEmpty else { return }
+        do {
+            let pve = try await apiClient.fetchPveOverview(
+                baseURL: serverBaseURL,
+                demoMode: isDemoMode,
+                node: selectedClusterNode
+            )
+            self.pveOverview = pve
+            self.lastUpdated = Date()
+            persistTelemetrySnapshot()
+        } catch {
+            showToast(error.localizedDescription, isError: true)
         }
     }
 
@@ -849,6 +886,7 @@ public final class AppViewModel {
             if let activeID = activeServerProfile?.id {
                 persistCachedIncidents(list, for: activeID)
             }
+            persistTelemetrySnapshot()
         }
     }
 
@@ -1080,6 +1118,7 @@ public final class AppViewModel {
         return list.filter {
             $0.name.lowercased().contains(q)
             || String($0.vmid).contains(q)
+            || ($0.node?.lowercased().contains(q) == true)
             || $0.tags.contains { $0.lowercased().contains(q) }
         }
     }
@@ -1198,13 +1237,26 @@ public final class AppViewModel {
     // MARK: - Existing Actions (PVE, Seerr, qBit, Users)
 
     public func executePveAction(resource: PveResource, action: PveAction) async {
+        let targetNode: String? = {
+            if let guestNode = resource.node?.trimmingCharacters(in: .whitespacesAndNewlines), !guestNode.isEmpty {
+                return guestNode
+            }
+            if let selected = selectedClusterNode?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !selected.isEmpty,
+               selected != "*",
+               selected.lowercased() != "all" {
+                return selected
+            }
+            return nil
+        }()
         do {
             try await apiClient.performPveAction(
                 baseURL: serverBaseURL,
                 demoMode: isDemoMode,
                 type: resource.type,
                 vmid: resource.vmid,
-                action: action
+                action: action,
+                node: targetNode
             )
             hapticSuccessTrigger += 1
             showToast("Commande « \(action.shortLabel) » envoyée à \(resource.name).", isError: false)
@@ -1442,6 +1494,7 @@ public final class AppViewModel {
     private func resetDomainState() {
         user = nil
         pveOverview = nil
+        selectedClusterNode = nil
         categories = []
         widgets = nil
         usersOverview = nil
@@ -1454,6 +1507,28 @@ public final class AppViewModel {
         yamlConfig = nil
         lastUpdated = nil
         connectionError = nil
+    }
+
+    private func persistTelemetrySnapshot() {
+        guard let pve = pveOverview else { return }
+        let activeIncidents = incidents.filter(\.isActive)
+        let resolvedNodeName = pve.node.name.isEmpty
+            ? (pve.selectedNode ?? selectedClusterNode ?? "pve")
+            : pve.node.name
+        let snapshot = TelemetryWidgetSnapshot(
+            updatedAt: Date(),
+            serverName: activeServerName,
+            nodeName: resolvedNodeName,
+            online: pve.online,
+            cpuPct: pve.node.cpuPct,
+            memPct: pve.node.memPct,
+            runningGuests: pve.counts.running,
+            totalGuests: pve.counts.total,
+            activeIncidentsCount: activeIncidents.count,
+            latestIncidentTitle: activeIncidents.first?.title
+        )
+        latestTelemetrySnapshot = snapshot
+        telemetrySnapshotStore.save(snapshot)
     }
 
     private static func defaultServerName(for baseURL: String) -> String {

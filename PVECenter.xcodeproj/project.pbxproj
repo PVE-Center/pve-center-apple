@@ -41,6 +41,7 @@
 		A10000200000000000000001 /* AppleTVPairingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000210000000000000001 /* AppleTVPairingView.swift */; };
 		A10000210000000000000001 /* ServiceIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000220000000000000001 /* ServiceIconView.swift */; };
 		A10000220000000000000001 /* CategoryServiceEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000230000000000000001 /* CategoryServiceEditorSheet.swift */; };
+		A10000230000000000000001 /* WidgetSnapshotViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000240000000000000001 /* WidgetSnapshotViews.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -80,6 +81,7 @@
 		B10000210000000000000001 /* AppleTVPairingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleTVPairingView.swift; sourceTree = "<group>"; };
 		B10000220000000000000001 /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
 		B10000230000000000000001 /* CategoryServiceEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryServiceEditorSheet.swift; sourceTree = "<group>"; };
+		B10000240000000000000001 /* WidgetSnapshotViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotViews.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -176,6 +178,7 @@
 				B10000080000000000000001 /* GlassCard.swift */,
 				B10000090000000000000001 /* AlertsBannerView.swift */,
 				B10000220000000000000001 /* ServiceIconView.swift */,
+				B10000240000000000000001 /* WidgetSnapshotViews.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -361,6 +364,7 @@
 				A10000200000000000000001 /* AppleTVPairingView.swift in Sources */,
 				A10000210000000000000001 /* ServiceIconView.swift in Sources */,
 				A10000220000000000000001 /* CategoryServiceEditorSheet.swift in Sources */,
+				A10000230000000000000001 /* WidgetSnapshotViews.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -467,7 +471,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LFY4VUWTU4;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PVECenter/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
@@ -497,7 +501,7 @@
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = LFY4VUWTU4;
+				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = PVECenter/Resources/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
