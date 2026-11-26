@@ -30,6 +30,7 @@ private let WIDGET_OPTIONS: [WidgetOption] = [
     WidgetOption(id: "", label: "Aucun widget"),
     WidgetOption(id: "jellyfin", label: "Jellyfin (flux & médiathèque)"),
     WidgetOption(id: "plex", label: "Plex (flux & librairies)"),
+    WidgetOption(id: "stremio", label: "Stremio (version, VAAPI & cache)"),
     WidgetOption(id: "radarr", label: "Radarr (films & file)"),
     WidgetOption(id: "sonarr", label: "Sonarr (séries & épisodes)"),
     WidgetOption(id: "prowlarr", label: "Prowlarr (indexeurs & grabs)"),

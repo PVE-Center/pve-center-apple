@@ -40,6 +40,7 @@ public enum ServiceBrandCatalog: Sendable {
     public static let brands: [ServiceBrandSpec] = [
         ServiceBrandSpec(id: "jellyfin", label: "Jellyfin", aliases: ["jellyfin"], keywords: ["jellyfin"], accentHex: 0xAA5CC3, secondaryHex: 0x00A4DC),
         ServiceBrandSpec(id: "plex", label: "Plex", aliases: ["plex"], keywords: ["plex"], accentHex: 0xE5A00D, secondaryHex: 0xCC7B19),
+        ServiceBrandSpec(id: "stremio", label: "Stremio", aliases: ["stremio", "stremio-web", "stremio-server", "streamio"], keywords: ["stremio", "streamio"], accentHex: 0x8A5AAB, secondaryHex: 0x5E35B1),
         ServiceBrandSpec(id: "jellyseerr", label: "Jellyseerr", aliases: ["jellyseerr", "overseerr", "seerr"], keywords: ["jellyseerr", "overseerr", "seerr"], accentHex: 0x6366F1, secondaryHex: 0xA855F7),
         ServiceBrandSpec(id: "radarr", label: "Radarr", aliases: ["radarr"], keywords: ["radarr"], accentHex: 0xF59E0B, secondaryHex: 0xD97706),
         ServiceBrandSpec(id: "sonarr", label: "Sonarr", aliases: ["sonarr"], keywords: ["sonarr"], accentHex: 0x0EA5E9, secondaryHex: 0x00CCFF),
@@ -249,6 +250,30 @@ public struct ServiceIconView: View {
                     p.closeSubpath()
                 }
                 .fill(LinearGradient(colors: [primary, secondary], startPoint: .topLeading, endPoint: .bottomTrailing))
+            }
+
+        case "stremio":
+            GeometryReader { geo in
+                let w = geo.size.width
+                let h = geo.size.height
+                ZStack {
+                    Path { p in
+                        p.move(to: CGPoint(x: w * 0.50, y: h * 0.08))
+                        p.addLine(to: CGPoint(x: w * 0.92, y: h * 0.50))
+                        p.addLine(to: CGPoint(x: w * 0.50, y: h * 0.92))
+                        p.addLine(to: CGPoint(x: w * 0.08, y: h * 0.50))
+                        p.closeSubpath()
+                    }
+                    .fill(LinearGradient(colors: [primary, secondary], startPoint: .topLeading, endPoint: .bottomTrailing))
+
+                    Path { p in
+                        p.move(to: CGPoint(x: w * 0.42, y: h * 0.34))
+                        p.addLine(to: CGPoint(x: w * 0.67, y: h * 0.50))
+                        p.addLine(to: CGPoint(x: w * 0.42, y: h * 0.66))
+                        p.closeSubpath()
+                    }
+                    .fill(Color.white)
+                }
             }
 
         case "jellyseerr":

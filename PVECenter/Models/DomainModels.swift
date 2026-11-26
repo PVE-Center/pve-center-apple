@@ -632,6 +632,15 @@ public struct PlexWidget: Codable, Sendable, Equatable {
     public let version: String?
 }
 
+public struct StremioWidget: Codable, Sendable, Equatable {
+    public let status: String
+    public let serverVersion: String?
+    public let hwAccelEnabled: Bool?
+    public let hwAccelProfiles: [String]?
+    public let cacheSizeBytes: Int64?
+    public let btMaxConnections: Int?
+}
+
 public struct UpcomingItem: Codable, Sendable, Equatable, Identifiable {
     public var id: String { "\(title)-\(date)" }
     public let title: String
@@ -677,6 +686,7 @@ public struct QbittorrentWidget: Codable, Sendable, Equatable {
 public struct WidgetsMap: Codable, Sendable, Equatable {
     public let jellyfin: JellyfinWidget?
     public let plex: PlexWidget?
+    public let stremio: StremioWidget?
     public let radarr: RadarrWidget?
     public let sonarr: SonarrWidget?
     public let prowlarr: ProwlarrWidget?
@@ -972,6 +982,9 @@ public struct SetupEnvConfig: Codable, Sendable, Equatable {
     public var jellyseerrApiKeySet: Bool
     public var plexUrl: String
     public var plexTokenSet: Bool
+    public var stremioUrl: String
+    public var stremioUsername: String
+    public var stremioPasswordSet: Bool
     public var radarrUrl: String
     public var radarrApiKeySet: Bool
     public var sonarrUrl: String
@@ -998,6 +1011,9 @@ public struct SetupEnvConfig: Codable, Sendable, Equatable {
         jellyseerrApiKeySet: Bool = false,
         plexUrl: String = "",
         plexTokenSet: Bool = false,
+        stremioUrl: String = "",
+        stremioUsername: String = "",
+        stremioPasswordSet: Bool = false,
         radarrUrl: String = "",
         radarrApiKeySet: Bool = false,
         sonarrUrl: String = "",
@@ -1023,6 +1039,9 @@ public struct SetupEnvConfig: Codable, Sendable, Equatable {
         self.jellyseerrApiKeySet = jellyseerrApiKeySet
         self.plexUrl = plexUrl
         self.plexTokenSet = plexTokenSet
+        self.stremioUrl = stremioUrl
+        self.stremioUsername = stremioUsername
+        self.stremioPasswordSet = stremioPasswordSet
         self.radarrUrl = radarrUrl
         self.radarrApiKeySet = radarrApiKeySet
         self.sonarrUrl = sonarrUrl
@@ -1032,6 +1051,37 @@ public struct SetupEnvConfig: Codable, Sendable, Equatable {
         self.qbitUrl = qbitUrl
         self.qbitUsername = qbitUsername
         self.qbitPasswordSet = qbitPasswordSet
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.devAuthBypass = try container.decode(Bool.self, forKey: .devAuthBypass)
+        self.allowedTailscaleUsers = try container.decode(String.self, forKey: .allowedTailscaleUsers)
+        self.protectedOwnerUsername = try container.decode(String.self, forKey: .protectedOwnerUsername)
+        self.pveHost = try container.decode(String.self, forKey: .pveHost)
+        self.pveNode = try container.decode(String.self, forKey: .pveNode)
+        self.pveTokenId = try container.decode(String.self, forKey: .pveTokenId)
+        self.pveTokenSecretSet = try container.decode(Bool.self, forKey: .pveTokenSecretSet)
+        self.pveVerifySsl = try container.decode(Bool.self, forKey: .pveVerifySsl)
+        self.panelSelfVmid = try container.decode(Int.self, forKey: .panelSelfVmid)
+        self.jellyfinUrl = try container.decode(String.self, forKey: .jellyfinUrl)
+        self.jellyfinApiKeySet = try container.decode(Bool.self, forKey: .jellyfinApiKeySet)
+        self.jellyseerrUrl = try container.decode(String.self, forKey: .jellyseerrUrl)
+        self.jellyseerrApiKeySet = try container.decode(Bool.self, forKey: .jellyseerrApiKeySet)
+        self.plexUrl = try container.decode(String.self, forKey: .plexUrl)
+        self.plexTokenSet = try container.decode(Bool.self, forKey: .plexTokenSet)
+        self.stremioUrl = try container.decodeIfPresent(String.self, forKey: .stremioUrl) ?? ""
+        self.stremioUsername = try container.decodeIfPresent(String.self, forKey: .stremioUsername) ?? ""
+        self.stremioPasswordSet = try container.decodeIfPresent(Bool.self, forKey: .stremioPasswordSet) ?? false
+        self.radarrUrl = try container.decode(String.self, forKey: .radarrUrl)
+        self.radarrApiKeySet = try container.decode(Bool.self, forKey: .radarrApiKeySet)
+        self.sonarrUrl = try container.decode(String.self, forKey: .sonarrUrl)
+        self.sonarrApiKeySet = try container.decode(Bool.self, forKey: .sonarrApiKeySet)
+        self.prowlarrUrl = try container.decode(String.self, forKey: .prowlarrUrl)
+        self.prowlarrApiKeySet = try container.decode(Bool.self, forKey: .prowlarrApiKeySet)
+        self.qbitUrl = try container.decode(String.self, forKey: .qbitUrl)
+        self.qbitUsername = try container.decode(String.self, forKey: .qbitUsername)
+        self.qbitPasswordSet = try container.decode(Bool.self, forKey: .qbitPasswordSet)
     }
 }
 
@@ -1172,6 +1222,9 @@ public struct SetupEnvUpdate: Codable, Sendable {
     public var jellyseerrApiKey: String?
     public var plexUrl: String?
     public var plexToken: String?
+    public var stremioUrl: String?
+    public var stremioUsername: String?
+    public var stremioPassword: String?
     public var radarrUrl: String?
     public var radarrApiKey: String?
     public var sonarrUrl: String?
@@ -1198,6 +1251,9 @@ public struct SetupEnvUpdate: Codable, Sendable {
         jellyseerrApiKey: String? = nil,
         plexUrl: String? = nil,
         plexToken: String? = nil,
+        stremioUrl: String? = nil,
+        stremioUsername: String? = nil,
+        stremioPassword: String? = nil,
         radarrUrl: String? = nil,
         radarrApiKey: String? = nil,
         sonarrUrl: String? = nil,
@@ -1223,6 +1279,9 @@ public struct SetupEnvUpdate: Codable, Sendable {
         self.jellyseerrApiKey = jellyseerrApiKey
         self.plexUrl = plexUrl
         self.plexToken = plexToken
+        self.stremioUrl = stremioUrl
+        self.stremioUsername = stremioUsername
+        self.stremioPassword = stremioPassword
         self.radarrUrl = radarrUrl
         self.radarrApiKey = radarrApiKey
         self.sonarrUrl = sonarrUrl

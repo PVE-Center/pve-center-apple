@@ -846,6 +846,31 @@ public struct ServicesTabView: View {
                     miniStat("Librairies", "\(plex.librariesCount ?? 0)")
                 }
             }
+        case "stremio":
+            if let stremio = viewModel.widgets?.stremio {
+                let firstProfile = (stremio.hwAccelProfiles?.first ?? "").lowercased()
+                let transcodeLabel: String = {
+                    if firstProfile.contains("vaapi") { return "VAAPI" }
+                    if firstProfile.contains("nvenc") { return "NVENC" }
+                    if firstProfile.contains("qsv") { return "QSV" }
+                    return (stremio.hwAccelEnabled ?? false) ? "HW" : "CPU"
+                }()
+                let cacheLabel: String = {
+                    if let bytes = stremio.cacheSizeBytes {
+                        if bytes == 0 { return "Off" }
+                        return String(format: "%.1f Go", Double(bytes) / 1_073_741_824.0)
+                    }
+                    return "Auto"
+                }()
+                let versionLabel = (stremio.serverVersion?.isEmpty == false)
+                    ? ((stremio.serverVersion ?? "").hasPrefix("v") ? (stremio.serverVersion ?? "OK") : "v\(stremio.serverVersion ?? "")")
+                    : "OK"
+                HStack(spacing: 8) {
+                    miniStat("Version", versionLabel)
+                    miniStat("Transcode", transcodeLabel)
+                    miniStat("Cache", cacheLabel)
+                }
+            }
         case "radarr":
             if let radarr = viewModel.widgets?.radarr {
                 HStack(spacing: 8) {

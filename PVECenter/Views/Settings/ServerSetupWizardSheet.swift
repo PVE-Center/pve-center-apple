@@ -41,6 +41,11 @@ public struct ServerSetupWizardSheet: View {
     @State private var plexToken: String = ""
     @State private var plexTokenSet: Bool = false
 
+    @State private var stremioUrl: String = ""
+    @State private var stremioUsername: String = "admin"
+    @State private var stremioPassword: String = ""
+    @State private var stremioPasswordSet: Bool = false
+
     @State private var radarrUrl: String = ""
     @State private var radarrApiKey: String = ""
     @State private var radarrApiKeySet: Bool = false
@@ -210,6 +215,9 @@ public struct ServerSetupWizardSheet: View {
                                     SecureField(jellyseerrApiKeySet ? "Clé API Jellyseerr (définie)" : "Clé API Jellyseerr", text: $jellyseerrApiKey)
                                     TextField("URL Plex", text: $plexUrl)
                                     SecureField(plexTokenSet ? "Token Plex (défini)" : "Token Plex", text: $plexToken)
+                                    TextField("URL Stremio", text: $stremioUrl)
+                                    TextField("Utilisateur Stremio", text: $stremioUsername)
+                                    SecureField(stremioPasswordSet ? "Mot de passe Stremio (défini)" : "Mot de passe Stremio", text: $stremioPassword)
                                     TextField("URL Radarr", text: $radarrUrl)
                                     SecureField(radarrApiKeySet ? "Clé API Radarr (définie)" : "Clé API Radarr", text: $radarrApiKey)
                                     TextField("URL Sonarr", text: $sonarrUrl)
@@ -296,6 +304,17 @@ public struct ServerSetupWizardSheet: View {
                             secretLabel: "Token Plex (X-Plex-Token)",
                             secret: $plexToken,
                             secretAlreadySet: plexTokenSet
+                        )
+
+                        mediaServiceSection(
+                            title: "Stremio (Web + Server)",
+                            serviceKey: "stremio",
+                            urlPlaceholder: "http://192.168.1.33:8080",
+                            url: $stremioUrl,
+                            username: $stremioUsername,
+                            secretLabel: "Mot de passe Basic Auth (optionnel)",
+                            secret: $stremioPassword,
+                            secretAlreadySet: stremioPasswordSet
                         )
 
                         mediaServiceSection(
@@ -617,6 +636,10 @@ public struct ServerSetupWizardSheet: View {
             plexUrl = env.plexUrl
             plexTokenSet = env.plexTokenSet
 
+            stremioUrl = env.stremioUrl
+            stremioUsername = env.stremioUsername.isEmpty ? "admin" : env.stremioUsername
+            stremioPasswordSet = env.stremioPasswordSet
+
             radarrUrl = env.radarrUrl
             radarrApiKeySet = env.radarrApiKeySet
 
@@ -672,6 +695,9 @@ public struct ServerSetupWizardSheet: View {
             jellyseerrApiKey: nonEmptyOrNil(jellyseerrApiKey),
             plexUrl: plexUrl.trimmingCharacters(in: .whitespacesAndNewlines),
             plexToken: nonEmptyOrNil(plexToken),
+            stremioUrl: stremioUrl.trimmingCharacters(in: .whitespacesAndNewlines),
+            stremioUsername: stremioUsername.trimmingCharacters(in: .whitespacesAndNewlines),
+            stremioPassword: nonEmptyOrNil(stremioPassword),
             radarrUrl: radarrUrl.trimmingCharacters(in: .whitespacesAndNewlines),
             radarrApiKey: nonEmptyOrNil(radarrApiKey),
             sonarrUrl: sonarrUrl.trimmingCharacters(in: .whitespacesAndNewlines),

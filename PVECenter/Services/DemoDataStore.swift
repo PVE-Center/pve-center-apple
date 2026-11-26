@@ -323,6 +323,9 @@ public actor DemoDataStore {
             jellyseerrApiKeySet: true,
             plexUrl: "http://192.168.1.30:32400",
             plexTokenSet: true,
+            stremioUrl: "http://192.168.1.33:8080",
+            stremioUsername: "admin",
+            stremioPasswordSet: true,
             radarrUrl: "http://192.168.1.27:7878",
             radarrApiKeySet: true,
             sonarrUrl: "http://192.168.1.28:8989",
@@ -1138,6 +1141,14 @@ public actor DemoDataStore {
                 episodesCount: 1840
             ),
             plex: nil,
+            stremio: StremioWidget(
+                status: "ok",
+                serverVersion: "4.20.12",
+                hwAccelEnabled: true,
+                hwAccelProfiles: ["vaapi-linux"],
+                cacheSizeBytes: 10_737_418_240,
+                btMaxConnections: 55
+            ),
             radarr: RadarrWidget(
                 status: "ok",
                 moviesTotal: 418,
@@ -1364,6 +1375,9 @@ public actor DemoDataStore {
             if let v = env.jellyseerrApiKey, !v.isEmpty { setupEnv.jellyseerrApiKeySet = true }
             if let v = env.plexUrl { setupEnv.plexUrl = v }
             if let v = env.plexToken, !v.isEmpty { setupEnv.plexTokenSet = true }
+            if let v = env.stremioUrl { setupEnv.stremioUrl = v }
+            if let v = env.stremioUsername { setupEnv.stremioUsername = v }
+            if let v = env.stremioPassword, !v.isEmpty { setupEnv.stremioPasswordSet = true }
             if let v = env.radarrUrl { setupEnv.radarrUrl = v }
             if let v = env.radarrApiKey, !v.isEmpty { setupEnv.radarrApiKeySet = true }
             if let v = env.sonarrUrl { setupEnv.sonarrUrl = v }
