@@ -42,6 +42,7 @@
 		A10000210000000000000001 /* ServiceIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000220000000000000001 /* ServiceIconView.swift */; };
 		A10000220000000000000001 /* CategoryServiceEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000230000000000000001 /* CategoryServiceEditorSheet.swift */; };
 		A10000230000000000000001 /* WidgetSnapshotViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000240000000000000001 /* WidgetSnapshotViews.swift */; };
+		A10000240000000000000001 /* UpdatesTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000250000000000000001 /* UpdatesTabView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +83,7 @@
 		B10000220000000000000001 /* ServiceIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceIconView.swift; sourceTree = "<group>"; };
 		B10000230000000000000001 /* CategoryServiceEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryServiceEditorSheet.swift; sourceTree = "<group>"; };
 		B10000240000000000000001 /* WidgetSnapshotViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSnapshotViews.swift; sourceTree = "<group>"; };
+		B10000250000000000000001 /* UpdatesTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdatesTabView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -165,6 +167,7 @@
 				C100000A0000000000000001 /* Storage */,
 				C100000B0000000000000001 /* ServicesHub */,
 				C100000C0000000000000001 /* Operations */,
+				C10000100000000000000001 /* Updates */,
 				C100000E0000000000000001 /* Users */,
 				C100000F0000000000000001 /* Settings */,
 			);
@@ -223,6 +226,14 @@
 				B100000E0000000000000001 /* OperationsTabView.swift */,
 			);
 			path = Operations;
+			sourceTree = "<group>";
+		};
+		C10000100000000000000001 /* Updates */ = {
+			isa = PBXGroup;
+			children = (
+				B10000250000000000000001 /* UpdatesTabView.swift */,
+			);
+			path = Updates;
 			sourceTree = "<group>";
 		};
 		C100000D0000000000000001 /* Resources */ = {
@@ -365,6 +376,7 @@
 				A10000210000000000000001 /* ServiceIconView.swift in Sources */,
 				A10000220000000000000001 /* CategoryServiceEditorSheet.swift in Sources */,
 				A10000230000000000000001 /* WidgetSnapshotViews.swift in Sources */,
+				A10000240000000000000001 /* UpdatesTabView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

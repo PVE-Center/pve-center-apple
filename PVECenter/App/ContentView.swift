@@ -169,6 +169,23 @@ public struct ContentView: View {
                 .preferredColorScheme(viewModel.preferredColorScheme)
         }
         #else
+        .sheet(isPresented: $viewModel.showUpdatesSheet) {
+            NavigationStack {
+                ZStack {
+                    AmbientBackgroundView()
+                    UpdatesTabView(viewModel: viewModel)
+                }
+                .navigationTitle("Mises à jour")
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Fermer") { viewModel.showUpdatesSheet = false }
+                    }
+                }
+            }
+            .environment(\.accentTheme, viewModel.accentTheme)
+            .tint(viewModel.tintColor(for: colorScheme))
+            .preferredColorScheme(viewModel.preferredColorScheme)
+        }
         .sheet(
             isPresented: $viewModel.showServerSettings,
             onDismiss: {
@@ -254,7 +271,7 @@ public struct ContentView: View {
                     )
                     macSidebarSection(
                         title: "Administration",
-                        tabs: [.operations, .users],
+                        tabs: [.operations, .updates, .users],
                         accent: themeAccent
                     )
                 }
@@ -301,7 +318,11 @@ public struct ContentView: View {
                 .padding(.bottom, 2)
 
             ForEach(tabs) { tab in
-                let badge = tab == .operations ? operationsBadgeCount : 0
+                let badge: Int = switch tab {
+                case .operations: operationsBadgeCount
+                case .updates: viewModel.availableUpdatesCount
+                default: 0
+                }
                 macSidebarButton(for: tab, badge: badge, accent: accent)
             }
         }
@@ -505,6 +526,9 @@ public struct ContentView: View {
                         Label(AppTab.operations.title, systemImage: AppTab.operations.systemImage)
                             .badge(operationsBadgeCount)
                             .tag(AppTab.operations)
+                        Label(AppTab.updates.title, systemImage: AppTab.updates.systemImage)
+                            .badge(viewModel.availableUpdatesCount)
+                            .tag(AppTab.updates)
                         Label(AppTab.users.title, systemImage: AppTab.users.systemImage).tag(AppTab.users)
                     }
                 }
@@ -595,6 +619,8 @@ public struct ContentView: View {
             ServicesTabView(viewModel: viewModel)
         case .operations:
             OperationsTabView(viewModel: viewModel)
+        case .updates:
+            UpdatesTabView(viewModel: viewModel)
         case .users:
             UsersTabView(viewModel: viewModel)
         }
@@ -645,6 +671,20 @@ public struct ContentView: View {
                 )
             }
             .help("Activer ou suspendre l'actualisation automatique (⌘L)")
+        }
+        #endif
+
+        #if os(iOS)
+        ToolbarItem(placement: .topBarTrailing) {
+            if horizontalSizeClass != .regular {
+                Button {
+                    viewModel.showUpdatesSheet = true
+                } label: {
+                    Image(systemName: viewModel.availableUpdatesCount > 0 ? "arrow.triangle.2.circlepath.circle.fill" : "arrow.triangle.2.circlepath.circle")
+                        .foregroundStyle(viewModel.availableUpdatesCount > 0 ? DesignTokens.caution(colorScheme) : DesignTokens.secondaryText(colorScheme))
+                }
+                .accessibilityLabel("Centre de Mises à Jour (\(viewModel.availableUpdatesCount))")
+            }
         }
         #endif
 

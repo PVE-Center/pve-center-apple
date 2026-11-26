@@ -29,6 +29,14 @@ public struct OverviewTabView: View {
         ScrollView {
             LazyVStack(spacing: 16) {
                 AlertsBannerView(alerts: viewModel.smartAlerts) { target in
+                    if target == .updates && horizontalSizeClass != .regular {
+                        #if os(iOS)
+                        viewModel.showUpdatesSheet = true
+                        #else
+                        viewModel.selectedTab = target
+                        #endif
+                        return
+                    }
                     if reduceMotion {
                         viewModel.selectedTab = target
                     } else {

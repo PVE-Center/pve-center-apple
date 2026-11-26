@@ -22,6 +22,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
     case storage
     case services
     case operations
+    case updates
     case users
 
     public var id: String { rawValue }
@@ -33,6 +34,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
         case .storage: "Stockage"
         case .services: "Services"
         case .operations: "Activité"
+        case .updates: "Mises à jour"
         case .users: "Comptes"
         }
     }
@@ -44,6 +46,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
         case .storage: "Disques"
         case .services: "Apps"
         case .operations: "Activité"
+        case .updates: "MAJ"
         case .users: "Comptes"
         }
     }
@@ -55,6 +58,7 @@ public enum AppTab: String, CaseIterable, Identifiable, Sendable {
         case .storage: "internaldrive.fill"
         case .services: "app.connected.to.app.below.fill"
         case .operations: "bolt.circle.fill"
+        case .updates: "arrow.triangle.2.circlepath.circle.fill"
         case .users: "person.2.fill"
         }
     }
@@ -2819,7 +2823,103 @@ public enum RealtimeEventType: String, Codable, Sendable, Equatable {
     case alertResolved = "alert_resolved"
     case incidentAcknowledged = "incident_acknowledged"
     case pairingCompleted = "pairing_completed"
+    case updateJobProgress = "update_job_progress"
     case unknown
+}
+
+// MARK: - Unified Update Center
+
+public struct UpdateTargetItem: Codable, Sendable, Equatable, Identifiable {
+    public let id: String
+    public let category: String
+    public let kind: String
+    public let name: String
+    public let subtitle: String
+    public let scope: String?
+    public let node: String?
+    public let vmid: Int?
+    public let composeDir: String?
+    public let status: String
+    public let currentVersion: String
+    public var latestVersion: String
+    public var updateAvailable: Bool
+    public var pendingCount: Int?
+    public let packagesPreview: [String]
+    public let canExecute: Bool
+    public let requiresSsh: Bool
+    public let releaseUrl: String?
+    public var lastCheckedAt: String?
+}
+
+public struct UpdateJobStep: Codable, Sendable, Equatable, Identifiable {
+    public var id: String { targetId }
+    public let targetId: String
+    public let name: String
+    public let category: String
+    public var status: String
+    public var message: String
+}
+
+public struct UpdateJob: Codable, Sendable, Equatable, Identifiable {
+    public let id: String
+    public var status: String
+    public let startedAt: String
+    public var finishedAt: String?
+    public var progressPct: Int
+    public var steps: [UpdateJobStep]
+    public var logs: [String]
+}
+
+public struct UpdatesSummary: Codable, Sendable, Equatable {
+    public let totalTargets: Int
+    public let updatesAvailable: Int
+    public let pendingPackages: Int
+    public let executableTargets: Int
+}
+
+public struct UpdatesOverviewResponse: Codable, Sendable, Equatable {
+    public let enabled: Bool
+    public let sshConfigured: Bool
+    public let sshMessage: String
+    public let sshHost: String
+    public let lastCheckedAt: String?
+    public let summary: UpdatesSummary
+    public let targets: [UpdateTargetItem]
+    public let activeJob: UpdateJob?
+    public let recentJobs: [UpdateJob]
+}
+
+public struct UpdatesSetupInfoResponse: Codable, Sendable, Equatable {
+    public let sshConfigured: Bool
+    public let sshMessage: String
+    public let sshHost: String
+    public let sshPort: Int
+    public let sshUser: String
+    public let sshPublicKey: String
+    public let proxmoxOneLiner: String
+    public let panelRepoDir: String
+}
+
+public struct RunUpdatesRequest: Codable, Sendable, Equatable {
+    public let targetIds: [String]
+    public let includePanelSelf: Bool
+    public let autoremove: Bool
+
+    public init(targetIds: [String], includePanelSelf: Bool = true, autoremove: Bool = true) {
+        self.targetIds = targetIds
+        self.includePanelSelf = includePanelSelf
+        self.autoremove = autoremove
+    }
+}
+
+public struct RunUpdatesResponse: Codable, Sendable, Equatable {
+    public let ok: Bool
+    public let job: UpdateJob
+}
+
+public struct UpdatesJobStatusResponse: Codable, Sendable, Equatable {
+    public let activeJob: UpdateJob?
+    public let recentJobs: [UpdateJob]
 }
 
 public struct RealtimeEventEnvelope: Codable, Sendable, Equatable {

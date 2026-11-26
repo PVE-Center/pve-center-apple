@@ -24,6 +24,11 @@ public actor DemoDataStore {
     private var registeredAPNsTokens: Set<String> = []
     private var demoPairingSessions: [String: PairingSessionInfo] = [:]
     private var demoPairingBundles: [String: EncryptedPairingBundle] = [:]
+    private var updateTargets: [UpdateTargetItem] = DemoDataStore.makeDefaultUpdateTargets()
+    private var activeUpdateJob: UpdateJob?
+    private var recentUpdateJobs: [UpdateJob] = []
+    private var updateJobStepCursor: Int = 0
+    private var updatesLastCheckedAt: String = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-120))
 
     public init() {
         let nowSec = Int(Date().timeIntervalSince1970)
@@ -1739,5 +1744,287 @@ public actor DemoDataStore {
     private func sha256Hex(_ text: String) -> String {
         let digest = SHA256.hash(data: Data(text.utf8))
         return digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    // MARK: - Unified Update Center (Demo Mode)
+
+    private static func makeDefaultUpdateTargets() -> [UpdateTargetItem] {
+        let ts = ISO8601DateFormatter().string(from: Date().addingTimeInterval(-120))
+        return [
+            UpdateTargetItem(
+                id: "panel:server",
+                category: "pve_center",
+                kind: "panel_server",
+                name: "Serveur PVE Command Center",
+                subtitle: "Repo /opt/pve-panel • conteneur LXC #116",
+                scope: nil,
+                node: "pve-node-01",
+                vmid: 116,
+                composeDir: nil,
+                status: "online",
+                currentVersion: "v1.0.0",
+                latestVersion: "v1.1.0",
+                updateAvailable: true,
+                pendingCount: 1,
+                packagesPreview: ["pve-panel -> v1.1.0"],
+                canExecute: true,
+                requiresSsh: true,
+                releaseUrl: "https://github.com/PVE-Center/pve-panel/releases",
+                lastCheckedAt: ts
+            ),
+            UpdateTargetItem(
+                id: "client:apple",
+                category: "pve_center",
+                kind: "client_app",
+                name: "Applications Apple (iOS / macOS / tvOS)",
+                subtitle: "Swift 6 natif (Xcode / TestFlight)",
+                scope: nil,
+                node: nil,
+                vmid: nil,
+                composeDir: nil,
+                status: "available",
+                currentVersion: "v1.0.0",
+                latestVersion: "v1.1.0",
+                updateAvailable: true,
+                pendingCount: nil,
+                packagesPreview: ["PVECenter.app"],
+                canExecute: false,
+                requiresSsh: false,
+                releaseUrl: "https://github.com/PVE-Center/pve-center-apple/releases",
+                lastCheckedAt: ts
+            ),
+            UpdateTargetItem(
+                id: "client:desktop",
+                category: "pve_center",
+                kind: "client_app",
+                name: "Client Desktop (Windows / Linux)",
+                subtitle: "Tauri v2 (.exe / .msi / .AppImage / .deb)",
+                scope: nil,
+                node: nil,
+                vmid: nil,
+                composeDir: nil,
+                status: "available",
+                currentVersion: "v1.0.0",
+                latestVersion: "v1.1.0",
+                updateAvailable: true,
+                pendingCount: nil,
+                packagesPreview: ["PVE.Center-setup.exe", "pve-center_amd64.AppImage"],
+                canExecute: false,
+                requiresSsh: false,
+                releaseUrl: "https://github.com/PVE-Center/pve-center-clients/releases",
+                lastCheckedAt: ts
+            ),
+            UpdateTargetItem(
+                id: "proxmox:pve-node-01",
+                category: "proxmox",
+                kind: "pve_node",
+                name: "Nœud Proxmox VE : pve-node-01",
+                subtitle: "APT système & hyperviseur Proxmox",
+                scope: nil,
+                node: "pve-node-01",
+                vmid: nil,
+                composeDir: nil,
+                status: "online",
+                currentVersion: "APT",
+                latestVersion: "3 paquet(s)",
+                updateAvailable: true,
+                pendingCount: 3,
+                packagesPreview: ["pve-manager (8.3.1 -> 8.3.2)", "proxmox-ve (8.3.0 -> 8.3.1)", "libpve-storage-perl (8.3.1 -> 8.3.3)"],
+                canExecute: true,
+                requiresSsh: true,
+                releaseUrl: nil,
+                lastCheckedAt: ts
+            ),
+            UpdateTargetItem(
+                id: "lxc:102",
+                category: "containers_vms",
+                kind: "lxc",
+                name: "ct-media-server (#102)",
+                subtitle: "LXC sur pve-node-01 • running",
+                scope: nil,
+                node: "pve-node-01",
+                vmid: 102,
+                composeDir: nil,
+                status: "running",
+                currentVersion: "OS invité",
+                latestVersion: "5 paquet(s)",
+                updateAvailable: true,
+                pendingCount: 5,
+                packagesPreview: [],
+                canExecute: true,
+                requiresSsh: true,
+                releaseUrl: nil,
+                lastCheckedAt: ts
+            ),
+            UpdateTargetItem(
+                id: "qemu:103",
+                category: "containers_vms",
+                kind: "qemu",
+                name: "vm-docker-host (#103)",
+                subtitle: "QEMU sur pve-node-01 • running",
+                scope: nil,
+                node: "pve-node-01",
+                vmid: 103,
+                composeDir: nil,
+                status: "running",
+                currentVersion: "OS invité",
+                latestVersion: "Prêt pour QEMU Guest Agent",
+                updateAvailable: true,
+                pendingCount: 4,
+                packagesPreview: [],
+                canExecute: true,
+                requiresSsh: false,
+                releaseUrl: nil,
+                lastCheckedAt: ts
+            ),
+            UpdateTargetItem(
+                id: "docker:media-stack",
+                category: "docker",
+                kind: "docker_compose",
+                name: "Stack Docker : media-stack",
+                subtitle: "LXC 102 (pve-node-01) • /opt/stacks/media",
+                scope: "lxc",
+                node: "pve-node-01",
+                vmid: 102,
+                composeDir: "/opt/stacks/media",
+                status: "running",
+                currentVersion: "4 conteneur(s)",
+                latestVersion: "Pull / Recreate",
+                updateAvailable: true,
+                pendingCount: 4,
+                packagesPreview: ["jellyfin/jellyfin:latest", "lscr.io/linuxserver/radarr:latest", "lscr.io/linuxserver/sonarr:latest"],
+                canExecute: true,
+                requiresSsh: true,
+                releaseUrl: nil,
+                lastCheckedAt: ts
+            ),
+        ]
+    }
+
+    public func updatesOverview() -> UpdatesOverviewResponse {
+        UpdatesOverviewResponse(
+            enabled: true,
+            sshConfigured: true,
+            sshMessage: "Connecté en SSH (root@192.168.1.10 • Mode Démo).",
+            sshHost: "192.168.1.10",
+            lastCheckedAt: updatesLastCheckedAt,
+            summary: UpdatesSummary(
+                totalTargets: updateTargets.count,
+                updatesAvailable: updateTargets.filter(\.updateAvailable).count,
+                pendingPackages: updateTargets.reduce(0) { $0 + ($1.updateAvailable ? ($1.pendingCount ?? 0) : 0) },
+                executableTargets: updateTargets.filter(\.canExecute).count
+            ),
+            targets: updateTargets,
+            activeJob: activeUpdateJob,
+            recentJobs: recentUpdateJobs
+        )
+    }
+
+    public func checkUpdates() -> UpdatesOverviewResponse {
+        let now = ISO8601DateFormatter().string(from: Date())
+        updatesLastCheckedAt = now
+        for idx in updateTargets.indices {
+            updateTargets[idx].lastCheckedAt = now
+        }
+        return updatesOverview()
+    }
+
+    public func runUpdates(_ request: RunUpdatesRequest) throws -> RunUpdatesResponse {
+        if activeUpdateJob?.status == "running" {
+            throw APIError.serverError(statusCode: 409, detail: "Une opération de mise à jour est déjà en cours.")
+        }
+
+        let selected = updateTargets
+            .filter { target in
+                if request.targetIds.contains("all") {
+                    return target.canExecute && (target.id != "panel:server" || request.includePanelSelf)
+                }
+                return request.targetIds.contains(target.id) && target.canExecute
+            }
+            .sorted { ($0.id == "panel:server" ? 1 : 0) < ($1.id == "panel:server" ? 1 : 0) }
+
+        guard !selected.isEmpty else {
+            throw APIError.serverError(statusCode: 400, detail: "Aucune cible exécutable sélectionnée.")
+        }
+
+        let now = ISO8601DateFormatter().string(from: Date())
+        let job = UpdateJob(
+            id: "upd-demo-\(UUID().uuidString.prefix(5).lowercased())",
+            status: "running",
+            startedAt: now,
+            finishedAt: nil,
+            progressPct: 10,
+            steps: selected.enumerated().map { idx, t in
+                UpdateJobStep(
+                    targetId: t.id,
+                    name: t.name,
+                    category: t.category,
+                    status: idx == 0 ? "running" : "pending",
+                    message: idx == 0 ? "Mise à jour en cours (Démo)…" : "En attente"
+                )
+            },
+            logs: ["[\(now)] Démarrage de la mise à jour centralisée (\(selected.count) cible(s))."]
+        )
+        activeUpdateJob = job
+        updateJobStepCursor = 0
+        return RunUpdatesResponse(ok: true, job: job)
+    }
+
+    public func updatesJobStatus() -> UpdatesJobStatusResponse {
+        if var job = activeUpdateJob, job.status == "running" {
+            let now = ISO8601DateFormatter().string(from: Date())
+            if updateJobStepCursor < job.steps.count {
+                let targetId = job.steps[updateJobStepCursor].targetId
+                job.steps[updateJobStepCursor].status = "succeeded"
+                job.steps[updateJobStepCursor].message = "Mis à jour avec succès (Démo)."
+                job.logs.append("[\(now)] OK \(job.steps[updateJobStepCursor].name) -> À jour")
+                if let tIdx = updateTargets.firstIndex(where: { $0.id == targetId }) {
+                    updateTargets[tIdx].updateAvailable = false
+                    updateTargets[tIdx].pendingCount = 0
+                    updateTargets[tIdx].latestVersion = "À jour"
+                }
+                updateJobStepCursor += 1
+                job.progressPct = Int((Double(updateJobStepCursor) / Double(max(1, job.steps.count))) * 100)
+                if updateJobStepCursor < job.steps.count {
+                    job.steps[updateJobStepCursor].status = "running"
+                    job.steps[updateJobStepCursor].message = "Mise à jour en cours (Démo)…"
+                } else {
+                    job.status = "succeeded"
+                    job.finishedAt = now
+                    recentUpdateJobs.insert(job, at: 0)
+                    recentUpdateJobs = Array(recentUpdateJobs.prefix(8))
+                }
+                activeUpdateJob = job
+            }
+        }
+        return UpdatesJobStatusResponse(activeJob: activeUpdateJob, recentJobs: recentUpdateJobs)
+    }
+
+    public func updatesSetupInfo() -> UpdatesSetupInfoResponse {
+        let pub = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDemoUpdateCenterKey000000000000 pve-center-updates"
+        return UpdatesSetupInfoResponse(
+            sshConfigured: true,
+            sshMessage: "Connecté en SSH (root@192.168.1.10 • Mode Démo).",
+            sshHost: "192.168.1.10",
+            sshPort: 22,
+            sshUser: "root",
+            sshPublicKey: pub,
+            proxmoxOneLiner: "mkdir -p ~/.ssh && printf '%s\\n' '\(pub)' >> ~/.ssh/authorized_keys",
+            panelRepoDir: "/opt/pve-panel"
+        )
+    }
+
+    public func rotateUpdatesSSHKey() -> UpdatesSetupInfoResponse {
+        let pub = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIRotatedDemoKey00000000000000 pve-center-updates"
+        return UpdatesSetupInfoResponse(
+            sshConfigured: true,
+            sshMessage: "Nouvelle clé Ed25519 générée (Mode Démo).",
+            sshHost: "192.168.1.10",
+            sshPort: 22,
+            sshUser: "root",
+            sshPublicKey: pub,
+            proxmoxOneLiner: "mkdir -p ~/.ssh && printf '%s\\n' '\(pub)' >> ~/.ssh/authorized_keys",
+            panelRepoDir: "/opt/pve-panel"
+        )
     }
 }

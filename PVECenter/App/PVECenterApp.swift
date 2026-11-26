@@ -280,6 +280,15 @@ private struct MenuBarPanelView: View {
                 }
                 .buttonStyle(.borderedProminent)
 
+                if viewModel.availableUpdatesCount > 0 {
+                    Button("\(viewModel.availableUpdatesCount) MAJ") {
+                        viewModel.selectedTab = .updates
+                        openWindow(id: "main")
+                        NSApplication.shared.activate(ignoringOtherApps: true)
+                    }
+                    .tint(.orange)
+                }
+
                 Button {
                     NSApplication.shared.terminate(nil)
                 } label: {

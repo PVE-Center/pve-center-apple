@@ -26,6 +26,7 @@ public final class AppViewModel {
     public let pushManager: PushNotificationManager
 
     private var pollingTask: Task<Void, Never>?
+    private var updatesPollingTask: Task<Void, Never>?
 
     // MARK: - Connection, Onboarding & Appearance State
     public var serverBaseURL: String
@@ -39,6 +40,7 @@ public final class AppViewModel {
     public var showServerSettings: Bool = false
     public var showServerSetupWizard: Bool = false
     public var pendingOpenSetupWizard: Bool = false
+    public var showUpdatesSheet: Bool = false
     public var isAppInBackground: Bool = false
 
     public var selectedTab: AppTab = .overview
@@ -71,6 +73,12 @@ public final class AppViewModel {
     public var yamlConfig: YAMLConfigResponse?
     public var lanDiscoveryItems: [DiscoveryServerItem] = []
     public var isLoadingDiscoveryLAN: Bool = false
+
+    public var updatesOverview: UpdatesOverviewResponse?
+    public var updatesSetupInfo: UpdatesSetupInfoResponse?
+    public var isCheckingUpdates: Bool = false
+    public var isStartingUpdateJob: Bool = false
+    public var isLoadingUpdatesSetup: Bool = false
 
     public init(
         apiClient: APIClient = APIClient(),
@@ -177,6 +185,10 @@ public final class AppViewModel {
 
     public var pendingRequestsCount: Int {
         (opsOverview?.seerrRequests ?? []).filter(\.isPending).count
+    }
+
+    public var availableUpdatesCount: Int {
+        updatesOverview?.summary.updatesAvailable ?? 0
     }
 
     // MARK: - Appearance & Onboarding Controls
@@ -619,8 +631,9 @@ public final class AppViewModel {
             async let setupReq = apiClient.fetchSetupStatus(baseURL: serverBaseURL, demoMode: isDemoMode)
             async let customReq = apiClient.fetchCustomServices(baseURL: serverBaseURL, demoMode: isDemoMode)
             async let incReq = apiClient.fetchIncidents(baseURL: serverBaseURL, demoMode: isDemoMode, activeOnly: false, limit: 50)
+            async let updReq = apiClient.fetchUpdatesOverview(baseURL: serverBaseURL, demoMode: isDemoMode)
 
-            let (pve, svc, wid, ops, usr, setup, custom, inc) = await (
+            let (pve, svc, wid, ops, usr, setup, custom, inc, upd) = await (
                 try? pveReq,
                 try? svcReq,
                 try? widReq,
@@ -628,7 +641,8 @@ public final class AppViewModel {
                 try? usrReq,
                 try? setupReq,
                 try? customReq,
-                try? incReq
+                try? incReq,
+                try? updReq
             )
 
             if let pve { self.pveOverview = pve }
@@ -637,6 +651,12 @@ public final class AppViewModel {
             if let ops { self.opsOverview = ops }
             if let usr { self.usersOverview = usr }
             if let setup { self.setupStatus = setup }
+            if let upd {
+                self.updatesOverview = upd
+                if upd.activeJob?.status == "running" {
+                    startUpdateJobPollingIfNeeded()
+                }
+            }
             if let custom {
                 self.customServices = custom
                 if let activeID = activeServerProfile?.id {
@@ -702,6 +722,124 @@ public final class AppViewModel {
         guard isDemoMode || !serverBaseURL.isEmpty else { return }
         if let usr = try? await apiClient.fetchUsers(baseURL: serverBaseURL, demoMode: isDemoMode) {
             self.usersOverview = usr
+        }
+    }
+
+    // MARK: - Unified Update Center Actions
+
+    public func refreshUpdatesOnly() async {
+        guard isDemoMode || !serverBaseURL.isEmpty else { return }
+        if let upd = try? await apiClient.fetchUpdatesOverview(baseURL: serverBaseURL, demoMode: isDemoMode) {
+            self.updatesOverview = upd
+            if upd.activeJob?.status == "running" {
+                startUpdateJobPollingIfNeeded()
+            }
+        }
+    }
+
+    public func checkUpdates() async {
+        guard isDemoMode || !serverBaseURL.isEmpty else { return }
+        isCheckingUpdates = true
+        defer { isCheckingUpdates = false }
+        do {
+            let upd = try await apiClient.checkUpdates(baseURL: serverBaseURL, demoMode: isDemoMode)
+            self.updatesOverview = upd
+            hapticImpactTrigger += 1
+            showToast("Inventaire des mises à jour actualisé.", isError: false)
+        } catch {
+            showToast(error.localizedDescription, isError: true)
+        }
+    }
+
+    public func runUpdates(
+        targetIds: [String],
+        includePanelSelf: Bool = true,
+        autoremove: Bool = true
+    ) async {
+        guard isDemoMode || !serverBaseURL.isEmpty else { return }
+        isStartingUpdateJob = true
+        defer { isStartingUpdateJob = false }
+        do {
+            let req = RunUpdatesRequest(
+                targetIds: targetIds,
+                includePanelSelf: includePanelSelf,
+                autoremove: autoremove
+            )
+            _ = try await apiClient.runUpdates(baseURL: serverBaseURL, demoMode: isDemoMode, request: req)
+            hapticSuccessTrigger += 1
+            showToast(
+                targetIds.contains("all")
+                    ? "Mise à jour globale lancée."
+                    : "Mise à jour lancée (\(targetIds.count) cible(s)).",
+                isError: false
+            )
+            await refreshUpdatesOnly()
+            startUpdateJobPollingIfNeeded()
+        } catch {
+            showToast(error.localizedDescription, isError: true)
+        }
+    }
+
+    public func loadUpdatesSetupInfo() async {
+        guard isDemoMode || !serverBaseURL.isEmpty else { return }
+        isLoadingUpdatesSetup = true
+        defer { isLoadingUpdatesSetup = false }
+        do {
+            self.updatesSetupInfo = try await apiClient.fetchUpdatesSetupInfo(
+                baseURL: serverBaseURL,
+                demoMode: isDemoMode
+            )
+        } catch {
+            showToast(error.localizedDescription, isError: true)
+        }
+    }
+
+    public func rotateUpdatesSSHKey() async {
+        guard isDemoMode || !serverBaseURL.isEmpty else { return }
+        isLoadingUpdatesSetup = true
+        defer { isLoadingUpdatesSetup = false }
+        do {
+            self.updatesSetupInfo = try await apiClient.rotateUpdatesSSHKey(
+                baseURL: serverBaseURL,
+                demoMode: isDemoMode
+            )
+            showToast("Nouvelle clé Ed25519 générée.", isError: false)
+            await refreshUpdatesOnly()
+        } catch {
+            showToast(error.localizedDescription, isError: true)
+        }
+    }
+
+    private func startUpdateJobPollingIfNeeded() {
+        guard updatesPollingTask == nil else { return }
+        updatesPollingTask = Task { [weak self] in
+            defer { Task { @MainActor in self?.updatesPollingTask = nil } }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(900))
+                guard let self, self.isDemoMode || !self.serverBaseURL.isEmpty else { break }
+                if let jobResp = try? await self.apiClient.fetchCurrentUpdateJob(
+                    baseURL: self.serverBaseURL,
+                    demoMode: self.isDemoMode
+                ) {
+                    if let current = self.updatesOverview {
+                        self.updatesOverview = UpdatesOverviewResponse(
+                            enabled: current.enabled,
+                            sshConfigured: current.sshConfigured,
+                            sshMessage: current.sshMessage,
+                            sshHost: current.sshHost,
+                            lastCheckedAt: current.lastCheckedAt,
+                            summary: current.summary,
+                            targets: current.targets,
+                            activeJob: jobResp.activeJob,
+                            recentJobs: jobResp.recentJobs
+                        )
+                    }
+                    if jobResp.activeJob?.status != "running" {
+                        await self.refreshUpdatesOnly()
+                        break
+                    }
+                }
+            }
         }
     }
 
@@ -1231,6 +1369,16 @@ public final class AppViewModel {
             ))
         }
 
+        if availableUpdatesCount > 0 {
+            alerts.append(SmartAlert(
+                id: "updates-available",
+                severity: .info,
+                title: "\(availableUpdatesCount) cible(s) prêtes à être mises à jour",
+                subtitle: "PVE Center, Proxmox VE, LXC/VMs & Docker Compose.",
+                targetTab: .updates
+            ))
+        }
+
         return alerts
     }
 
@@ -1470,6 +1618,11 @@ public final class AppViewModel {
                 await pairingService.handleRealtimePairingCompleted(pin: envelope.pin)
             }
 
+        case .updateJobProgress:
+            Task {
+                await refreshUpdatesOnly()
+            }
+
         case .unknown:
             break
         }
@@ -1505,6 +1658,8 @@ public final class AppViewModel {
         incidents = []
         notificationChannels = nil
         yamlConfig = nil
+        updatesOverview = nil
+        updatesSetupInfo = nil
         lastUpdated = nil
         connectionError = nil
     }

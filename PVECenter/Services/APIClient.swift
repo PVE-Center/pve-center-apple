@@ -186,6 +186,54 @@ public actor APIClient {
         return try await send(path: "/api/setup/status", baseURL: baseURL)
     }
 
+    // MARK: - Unified Update Center
+
+    public func fetchUpdatesOverview(baseURL: String, demoMode: Bool) async throws -> UpdatesOverviewResponse {
+        if demoMode {
+            return await demoStore.updatesOverview()
+        }
+        return try await send(path: "/api/updates/overview", baseURL: baseURL)
+    }
+
+    public func checkUpdates(baseURL: String, demoMode: Bool) async throws -> UpdatesOverviewResponse {
+        if demoMode {
+            return await demoStore.checkUpdates()
+        }
+        return try await send(path: "/api/updates/check", method: "POST", baseURL: baseURL)
+    }
+
+    public func runUpdates(
+        baseURL: String,
+        demoMode: Bool,
+        request: RunUpdatesRequest
+    ) async throws -> RunUpdatesResponse {
+        if demoMode {
+            return try await demoStore.runUpdates(request)
+        }
+        return try await send(path: "/api/updates/run", method: "POST", body: request, baseURL: baseURL)
+    }
+
+    public func fetchCurrentUpdateJob(baseURL: String, demoMode: Bool) async throws -> UpdatesJobStatusResponse {
+        if demoMode {
+            return await demoStore.updatesJobStatus()
+        }
+        return try await send(path: "/api/updates/jobs/current", baseURL: baseURL)
+    }
+
+    public func fetchUpdatesSetupInfo(baseURL: String, demoMode: Bool) async throws -> UpdatesSetupInfoResponse {
+        if demoMode {
+            return await demoStore.updatesSetupInfo()
+        }
+        return try await send(path: "/api/updates/setup-info", baseURL: baseURL)
+    }
+
+    public func rotateUpdatesSSHKey(baseURL: String, demoMode: Bool) async throws -> UpdatesSetupInfoResponse {
+        if demoMode {
+            return await demoStore.rotateUpdatesSSHKey()
+        }
+        return try await send(path: "/api/updates/ssh-key/rotate", method: "POST", baseURL: baseURL)
+    }
+
     // MARK: - Custom Services
 
     public func fetchCustomServices(baseURL: String, demoMode: Bool) async throws -> [CustomServiceConfig] {
