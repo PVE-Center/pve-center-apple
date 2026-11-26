@@ -115,6 +115,7 @@ L'équipe de révision Apple ne pouvant pas accéder à votre réseau local ou T
 | `./scripts/install-mac.sh` | Mac natif (Xcode) | Compile la cible `PVECenter` pour `macosx` (Release, signature ad-hoc `-`) et installe `/Applications/PVE Center.app`. |
 | `./scripts/build-macos-app.sh` | Mac natif (SwiftPM) | Compile via `swift build -c release`, génère `AppIcon.icns`, signe `build/PVE Center.app` (Bundle ID `io.github.pvepanel.app`) et installe dans `/Applications` ou `~/Applications`. |
 | `./scripts/deploy-device.sh` | Appareil physique | Déploie en Release via `xcrun devicectl` sur iPhone, iPad ou Apple TV physique (`--list`, `-t <TEAM_ID>`, `-p ios\|tvos`, `-d <UDID>`). |
+| `./scripts/prepare-appstore-secrets.sh` | CI TestFlight | Valide localement certificat `.p12`, profil `.mobileprovision` et clé `.p8`, encode en Base64 et pousse optionnellement les 8 secrets GitHub Actions via `gh secret set` (`--apply-gh <OWNER/REPO>`). |
 
 Exemples rapides :
 

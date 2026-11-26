@@ -115,6 +115,7 @@ Because Apple's App Review team cannot reach your private LAN or Tailnet, the ap
 | `./scripts/install-mac.sh` | Native Mac (Xcode) | Builds `PVECenter` for `macosx` (Release, ad-hoc `-` signature) and installs `/Applications/PVE Center.app`. |
 | `./scripts/build-macos-app.sh` | Native Mac (SwiftPM) | Runs `swift build -c release`, generates `AppIcon.icns`, ad-hoc signs `build/PVE Center.app` (Bundle ID `io.github.pvepanel.app`), and installs to `/Applications` or `~/Applications`. |
 | `./scripts/deploy-device.sh` | Physical Device | Release build and install via `xcrun devicectl` for physical iPhone, iPad, or Apple TV (`--list`, `-t <TEAM_ID>`, `-p ios\|tvos`, `-d <UDID>`). |
+| `./scripts/prepare-appstore-secrets.sh` | TestFlight CI | Validates `.p12`, `.mobileprovision`, and `.p8` API keys locally, Base64-encodes them, and optionally uploads all 8 secrets via `gh secret set` (`--apply-gh <OWNER/REPO>`). |
 
 Quick examples:
 

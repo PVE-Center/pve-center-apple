@@ -217,7 +217,7 @@ plutil -lint PVECenter/Resources/Info.plist
 - [x] Opérations Live, gestion unifiée des utilisateurs Jellyfin/Jellyseerr et assistant de configuration YAML
 - [x] Sélecteur de nœuds Proxmox VE multi-cluster (`?node=`, bannière failover & badges par hôte) synchronisé avec `pve-panel`
 - [x] Stockage et vues de snapshots télémétriques prêts pour WidgetKit (`TelemetryWidgetSnapshot`, `TelemetrySnapshotStore`, `GlanceableNodeWidgetView` : jauges CPU/RAM & incidents actifs)
-- [ ] Publication automatisée TestFlight / App Store Connect via CI GitHub Actions (nécessite les secrets Apple Developer fournis par l'utilisateur)
+- [x] Publication automatisée TestFlight / App Store Connect via CI (`ios-appstore.yml` + assistant `scripts/prepare-appstore-secrets.sh` pour injecter vos secrets Apple Developer en une commande)
 
 ---
 
